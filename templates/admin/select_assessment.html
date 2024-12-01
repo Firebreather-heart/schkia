@@ -6,10 +6,10 @@
     <form method="post" class="form-horizontal">{% csrf_token %}
         <div class="form-group row">
             <div class="col-md-4">
-                <label for="student" class="control-label">Student:</label>
-                <select name="student" id="student" class="form-control">
-                    {% for student in students %}
-                    <option value="{{ student.id }}">{{ student.fullname }}</option>
+                <label for="classroom" class="control-label">Classroom:</label>
+                <select name="classroom" id="classroom" class="form-control">
+                    {% for classroom in classrooms %}
+                    <option value="{{ classroom.name }}">{{ classroom.classname }}</option>
                     {% endfor %}
                 </select>
             </div>

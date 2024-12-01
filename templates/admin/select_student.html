@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-primary">
+            <h3>Select a Student</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" class="form-horizontal">{% csrf_token %}
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="classroom" class="form-label"><strong>Classroom:</strong></label>
+                        <p class="form-control-plaintext">{{ classroom.classname }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="session" class="form-label"><strong>Academic Session:</strong></label>
+                        <p class="form-control-plaintext">{{ session }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="term" class="form-label"><strong>Term:</strong></label>
+                        <p class="form-control-plaintext">{{ term }}</p>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="student" class="form-label"><strong>Select Student:</strong></label>
+                        <select name="student" id="student" class="form-control">
+                            {% for student in students %}
+                            <option value="{{ student.id }}">{{ student.fullname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-end">
+                        <button type="submit" class="btn btn-primary">Assess Student</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

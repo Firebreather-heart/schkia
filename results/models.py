@@ -19,11 +19,11 @@ class ClassRoom(models.Model):
     name = models.CharField(max_length=50, choices=NAME_CHOICES, unique=True)
 
     def __str__(self):
-        return self.name
-    
+        return self.classname()
+
     def classname(self):
-        return self.get_name_display() #type: ignore
-    
+        return self.get_name_display()  # type: ignore
+
     class Meta:
         verbose_name_plural = 'Classrooms'
         verbose_name = 'Classroom'
@@ -31,11 +31,11 @@ class ClassRoom(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=50)
-    classroom = models.ForeignKey(ClassRoom, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(
+        ClassRoom, on_delete=models.CASCADE, related_name='subjects')
 
     def __str__(self):
-        return self.name
-
+        return f"{self.name} - {self.classroom}"
 
 
 class AcademicSession(models.Model):
@@ -69,6 +69,54 @@ class Assessment(models.Model):
 
     def __str__(self):
         return f'Assessment for {self.student} on {self.subject} - {self.term}'
+
+
+class AssessmentSection(models.Model):
+    name = models.CharField(max_length=50)
+    term = models.ForeignKey(Term, on_delete=models.CASCADE,
+                             related_name='assessment_sections')
+    classroom = models.ForeignKey(ClassRoom, on_delete=models.CASCADE,
+                                  related_name='assessment_sections')
+
+    def __str__(self):
+        return f'{self.name}'
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        if is_new:
+            for subject in self.classroom.subjects.all():  # type: ignore
+                AssessmentArea.objects.create(
+                    name=subject.name, subject=subject, section=self)
+                
+    class Meta:
+        verbose_name = "Result Section"
+        verbose_name_plural = "Result Sections"
+
+
+class AssessmentArea(models.Model):
+    name = models.CharField(max_length=50)
+    section = models.ForeignKey(
+        AssessmentSection, on_delete=models.CASCADE, related_name='assessment_areas')
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE, related_name='subjects')
+
+    def __str__(self):
+        return f'{self.name} - {self.subject}'
+    
+    class Meta:
+        verbose_name = 'Result subsection'
+        verbose_name_plural = 'Result subsections'
+
+
+class AssessmentSubArea(models.Model):
+    name = models.CharField(max_length=50)
+    area = models.ForeignKey(AssessmentArea,
+                             on_delete=models.CASCADE, related_name='assessment_subareas')
+
+    def __str__(self):
+        return self.name
 
 
 class Student(models.Model):

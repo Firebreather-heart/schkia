@@ -1,0 +1,72 @@
+{% extends "admin/change_form.html" %}
+{% load static i18n %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Edit Assessment Section</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" action=".">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_name" class="form-label">Name</label>
+                <input type="text" name="name" id="id_name" class="form-control" value="{{ original.name }}">
+            </div>
+            <div class="mb-3">
+                <label for="id_term" class="form-label">Term</label>
+                <select name="term" id="id_term" class="form-select">
+                    {% for term in terms %}
+                    <option value="{{ term.id }}" {% if term == original.term %}selected{% endif %}>
+                        {{ term }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="id_classroom" class="form-label">Classroom</label>
+                <select name="classroom" id="id_classroom" class="form-select">
+                    {% for classroom in classrooms %}
+                    <option value="{{ classroom.id }}" {% if classroom == original.classroom %}selected{% endif %}>
+                        {{ classroom }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h4>Assessment Areas</h4>
+    </div>
+    <div class="card-body">
+        {% if areas %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Area Name</th>
+                    <th>Subject</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for area in areas %}
+                <tr>
+                    <td>
+                        <a href="{% url 'admin:results_assessmentarea_change' area.id %}">
+                            {{ area.name }}
+                        </a>
+                    </td>
+                    <td>{{ area.subject }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No assessment areas available for this section.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

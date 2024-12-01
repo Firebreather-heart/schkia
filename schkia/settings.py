@@ -154,44 +154,6 @@ JAZZMIN_SETTINGS = {
     "hide_models": [],
     "order_with_respect_to": ["users", "results"],
     "order_with_respect_to":["users", "results.student", "results"],
-    "apps":[
-        {
-            "app": "users",
-            "label": "Users",
-            "icon": "fas fa-users",
-            "models": [
-                {
-                    "model": "users.CustomUser",
-                    "label": "Custom Users",
-                    "icon": "fas fa-user",
-                },
-                {
-                    "model": "results.Student",
-                    "label": "Students",
-                    "icon": "fas fa-user-graduate",
-                },
-            ],
-        },
-        {
-            "app": "results",
-            "label": "Academics",
-            "icon": "fas fa-chart-bar",
-            "models": [
-                {
-                    "model": "results.ClassRoom",
-                    "label": "ClassRooms",
-                    "icon": "fas fa-door-open",
-                },
-                {
-                    "model": "results.Assessment",
-                    "label": "Assessments",
-                    "icon": "fas fa-clipboard-check",
-                },
-            ],
-        },
-
-
-    ],
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
@@ -203,4 +165,5 @@ JAZZMIN_SETTINGS = {
     "custom_css": 'custom_admin.css',
     "custom_js": None,
     "show_ui_builder": False,
+    
 }

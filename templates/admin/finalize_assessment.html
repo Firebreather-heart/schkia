@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h1>Finalize Assessment for {{ student.fullname }}</h1>
+    <form method="POST">{% csrf_token %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in subjects %}
+                <tr>
+                    <td>{{ subject.name }}</td>
+                    <td>
+                        <select name="grades[{{ assessment.id }}]" class="form-control">
+                            {% for key, value in assessment.ASSESSMENT_OPTIONS %}
+                            <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Save Assessment</button>
+    </form>
+</div>
+{% endblock %}
