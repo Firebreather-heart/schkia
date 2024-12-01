@@ -1,0 +1,18 @@
+.custom-assessment-dropdown {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.admin-form .field-student,
+.admin-form .field-subject {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.admin-form h2 {
+    font-size: 18px;
+    margin-top: 20px;
+}

@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid">
+    <h1>Create Assessment</h1>
+    <form method="post" class="form-horizontal">{% csrf_token %}
+        <div class="form-group row">
+            <div class="col-md-4">
+                <label for="student" class="control-label">Student:</label>
+                <select name="student" id="student" class="form-control">
+                    {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.fullname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="session" class="control-label">Academic Session:</label>
+                <select name="session" id="session" class="form-control">
+                    {% for session in sessions %}
+                    <option value="{{ session.id }}">{{ session.session }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="term" class="control-label">Term:</label>
+                <select name="term" id="term" class="form-control">
+                    {% for term in terms %}
+                    <option value="{{ term.id }}">{{ term.term }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-12 text-left">
+                <button type="submit" class="btn btn-primary">Proceed to Add Assessment</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
