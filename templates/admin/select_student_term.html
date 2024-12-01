@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls  %}
+
+{% block content %}
+<div id="content-main">
+    <h1>{{ title }}</h1>
+
+    <form method="post" class="grp-form">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>{{ form.student.label }}</label>
+                {{ form.student }}
+            </div>
+            <div class="form-group col-md-6">
+                <label>{{ form.term.label }}</label>
+                {{ form.term }}
+            </div>
+        </div>
+
+        <div class="submit-row">
+            <input type="submit" value="Next" class="btn btn-primary">
+        </div>
+    </form>
+</div>
+{% endblock %}

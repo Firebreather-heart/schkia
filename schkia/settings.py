@@ -145,8 +145,6 @@ JAZZMIN_SETTINGS = {
     "usermenu_links": [
         {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues",
             "new_window": True},
-        {"name": "Profile", "url": "admin:users_customuser_change",
-            "permissions": ["users.change_user"]},
     ],
     "show_sidebar": True,
     "navigation_expanded": True,

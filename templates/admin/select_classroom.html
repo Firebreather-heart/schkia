@@ -5,12 +5,8 @@
     <form method="post">
         {% csrf_token %}
         <div class="form-row">
-            {{ form.student.label_tag }}
-            {{ form.student }}
-        </div>
-        <div class="form-row">
-            {{ form.term.label_tag }}
-            {{ form.term }}
+            {{ form.classroom.label_tag }}
+            {{ form.classroom }}
         </div>
         <div class="submit-row">
             <input type="submit" value="Next" class="default">

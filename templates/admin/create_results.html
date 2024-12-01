@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .grade-section {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>{{ title }}</h1>
+
+    <form method="post" class="grp-form">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>{{ form.term.label }}</label>
+                {{ form.term }}
+            </div>
+            <div class="form-group col-md-6">
+                <label>{{ form.assessment_section.label }}</label>
+                {{ form.assessment_section }}
+            </div>
+        </div>
+
+        <div class="grade-sections">
+            {% for section in assessment_data %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3>{{ section.section_name }}</h3>
+                </div>
+                <div class="card-body">
+                    {% for area in section.areas %}
+                    <div class="assessment-area mb-3">
+                        <h4>{{ area.area_name }}</h4>
+                        {% for subarea_info in area.subareas %}
+                        <div class="form-group">
+                            <label>{{ subarea_info.subarea.name }}</label>
+                            <select name="grade_{{ subarea_info.subarea.id }}" class="form-control">
+                                {% for grade_key, grade_value in subarea_info.grade_options %}
+                                <option value="{{ grade_key }}">{{ grade_value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="submit-row">
+            <input type="submit" value="Save Grades" class="btn btn-primary">
+        </div>
+    </form>
+</div>
+{% endblock %}

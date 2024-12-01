@@ -53,24 +53,6 @@ class Term(models.Model):
         return f"{self.term} - {self.session}"
 
 
-class Assessment(models.Model):
-    student = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    term = models.ForeignKey(
-        Term, on_delete=models.CASCADE, blank=True, null=True)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    ASSESSMENT_OPTIONS = (
-        ('EX', 'Excellent'),
-        ('VG', 'Very Good'),
-        ('G', 'Good'),
-        ('W.I.P', 'Work in Progress'),
-        ('NA', 'Not Applicable'),
-    )
-    name = models.CharField(max_length=50, choices=ASSESSMENT_OPTIONS)
-
-    def __str__(self):
-        return f'Assessment for {self.student} on {self.subject} - {self.term}'
-
-
 class AssessmentSection(models.Model):
     name = models.CharField(max_length=50)
     term = models.ForeignKey(Term, on_delete=models.CASCADE,
@@ -89,7 +71,7 @@ class AssessmentSection(models.Model):
             for subject in self.classroom.subjects.all():  # type: ignore
                 AssessmentArea.objects.create(
                     name=subject.name, subject=subject, section=self)
-                
+
     class Meta:
         verbose_name = "Result Section"
         verbose_name_plural = "Result Sections"
@@ -104,10 +86,10 @@ class AssessmentArea(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.subject}'
-    
+
     class Meta:
-        verbose_name = 'Result subsection'
-        verbose_name_plural = 'Result subsections'
+        verbose_name = 'Result Subsection'
+        verbose_name_plural = 'Result Subsections'
 
 
 class AssessmentSubArea(models.Model):
@@ -117,6 +99,43 @@ class AssessmentSubArea(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Grade(models.Model):
+    ASSESSMENT_OPTIONS = (
+        ('EX', 'Excellent'),
+        ('VG', 'Very Good'),
+        ('G', 'Good'),
+        ('W.I.P', 'Work in Progress'),
+        ('NA', 'Not Applicable'),
+    )
+    grade = models.CharField(
+        max_length=15, choices=ASSESSMENT_OPTIONS, editable=True)
+    assessment_sub_area = models.ForeignKey(
+        AssessmentSubArea, on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        'Student', on_delete=models.CASCADE, related_name='grades')
+    result = models.ForeignKey(
+        'StudentResult', on_delete=models.CASCADE, related_name='grades')
+
+    class Meta:
+        unique_together = ('assessment_sub_area', 'student')
+
+    def __str__(self):
+        return self.grade
+
+
+class StudentResult(models.Model):
+    student = models.ForeignKey(
+        'Student', on_delete=models.CASCADE, related_name='results')
+    term = models.ForeignKey(Term, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Record Result'
+        verbose_name_plural = 'Record Results'
+
+    def __str__(self):
+        return f'Result for {self.student} - {self.term}'
 
 
 class Student(models.Model):
@@ -149,3 +168,6 @@ class Student(models.Model):
                                   to_field='name'
                                   )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.fullname
