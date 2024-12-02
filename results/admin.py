@@ -330,8 +330,7 @@ class StudentResultAdmin(admin.ModelAdmin):
             if section_id:
                 return redirect(
                     reverse('admin:create_results') +
-                    f'?student_id={student_id}&term_id={
-                        term_id}&section_id={section_id}'
+                    f'?student_id={student_id}&term_id={term_id}&section_id={section_id}'
                 )
             
         assessment_sections = AssessmentSection.objects.filter(

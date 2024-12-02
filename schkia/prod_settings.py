@@ -22,7 +22,7 @@ def config(var_name: str):
         raise KeyError(f'{var_name} not found in environment variables')
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 read_dot_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = config('SECRET_KEY')
 
@@ -117,7 +117,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Media files
 MEDIA_URL = '/media/'
