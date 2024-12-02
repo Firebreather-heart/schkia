@@ -1,0 +1,89 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .result-section {
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+    }
+
+    .result-section h3 {
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .result-subject {
+        margin-bottom: 15px;
+    }
+
+    .grade-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 15px;
+    }
+
+    .grade-table th,
+    .grade-table td {
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .grade-table thead {
+        background-color: #f1f4f8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Result Details</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ result.student.fullname }}</h2>
+            <p>Term: {{ result.term }}</p>
+        </div>
+        <div class="card-body">
+            {% for section_name, subjects in organized_grades.items %}
+            <div class="result-section">
+                <h3>{{ section_name }}</h3>
+
+                {% for subject_name, subareas in subjects.items %}
+                <div class="result-subject">
+                    <h4>{{ subject_name }}</h4>
+                    <table class="grade-table">
+                        <thead>
+                            <tr>
+                                <th>Sub Area</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subarea in subareas %}
+                            <tr>
+                                <td>{{ subarea.subarea }}</td>
+                                <td>{{ subarea.grade }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="submit-row">
+        <a href="{{ admin_site.reverse_admin_url('results_studentresult_change', current_app='results', args=[result.pk]) }}"
+            class="btn btn-secondary">Back to Edit</a>
+    </div>
+</div>
+{% endblock %}

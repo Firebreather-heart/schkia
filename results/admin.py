@@ -175,6 +175,9 @@ class StudentResultAdmin(admin.ModelAdmin):
             path('create_results/',
                  self.admin_site.admin_view(self.create_results_view),
                  name='create_results'),
+            path('<path:object_id>/detail/',
+                 self.admin_site.admin_view(self.result_detail_view),
+                 name='studentresult_detail'),
         ]
         return custom_urls + urls
     
@@ -333,3 +336,54 @@ class StudentResultAdmin(admin.ModelAdmin):
             'original': student,
         }
         return render(request, "admin/create_results.html", context)
+    
+    def result_detail_view(self, request, object_id):
+        # Get the specific StudentResult object
+        result = get_object_or_404(StudentResult, pk=object_id)
+        term = result.term 
+        print(term.assessment_sections.assessment_areas.all())
+
+        # Fetch all grades for this result
+        grades = result.grades.select_related(
+            'assessment_sub_area__area__section', 
+            'assessment_sub_area__area__subject'
+        ).order_by(
+            'assessment_sub_area__area__section__name', 
+            'assessment_sub_area__area__subject__name'
+        )
+
+        # Organize grades by section and area
+        organized_grades = {}
+        for grade in grades:
+            section_name = grade.assessment_sub_area.area.section.name
+            area_name = grade.assessment_sub_area.area.name
+            subject_name = grade.assessment_sub_area.area.subject.name
+
+            if section_name not in organized_grades:
+                organized_grades[section_name] = {}
+            
+            if subject_name not in organized_grades[section_name]:
+                organized_grades[section_name][subject_name] = []
+
+            organized_grades[section_name][subject_name].append({
+                'subarea': grade.assessment_sub_area.name,
+                'grade': grade.get_grade_display()
+            })
+
+            context = {
+                'result': result,
+                'organized_grades': organized_grades,
+                'title': f'Result Details for {result.student.fullname} - {result.term}',
+                'opts': StudentResult._meta,
+                'app_label': 'results',
+                'original': result,
+            }
+            return render(request, "admin/result_detail.html", context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_detail_link'] = True
+        extra_context['detail_link'] = reverse( #type:ignore
+            'admin:studentresult_detail',
+              args=[object_id])
+        return super().change_view(request, object_id, form_url, extra_context)

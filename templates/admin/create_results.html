@@ -15,8 +15,8 @@
 {% endblock %}
 
 {% block content %}
-<div id="content-main">
-    <h1>{{ title }}</h1>
+<div id="content-main" class="w-100">
+    <h1 class="text-xl text-bold text-primary">{{ title }}</h1>
 
     <form method="post" class="grp-form">
         {% csrf_token %}
@@ -32,19 +32,19 @@
             </div>
         </div>
 
-        <div class="grade-sections">
+        <div class="grade-sections ">
             {% for section in assessment_data %}
-            <div class="card mb-3">
+            <div class="card mb-3 ">
                 <div class="card-header">
-                    <h3>{{ section.section_name }}</h3>
+                    <h3 class="text-xl text-secondary text-bold">{{ section.section_name }}</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body ">
                     {% for area in section.areas %}
-                    <div class="assessment-area mb-3">
-                        <h4>{{ area.area_name }}</h4>
+                    <div class="assessment-area mb-3 border border-primary p-5">
+                        <h4 class="text-xl text-primary text-bold">{{ area.area_name }}</h4>
                         {% for subarea_info in area.subareas %}
                         <div class="form-group">
-                            <label>{{ subarea_info.subarea.name }}</label>
+                            <label class="text-secondary">{{ subarea_info.subarea.name }}</label>
                             <select name="grade_{{ subarea_info.subarea.id }}" class="form-control">
                                 {% for grade_key, grade_value in subarea_info.grade_options %}
                                 <option value="{{ grade_key }}">{{ grade_value }}</option>

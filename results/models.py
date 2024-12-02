@@ -122,7 +122,7 @@ class Grade(models.Model):
         unique_together = ('assessment_sub_area', 'student')
 
     def __str__(self):
-        return self.grade
+        return f'{self.grade}'
 
 
 class StudentResult(models.Model):
@@ -136,6 +136,8 @@ class StudentResult(models.Model):
 
     def __str__(self):
         return f'Result for {self.student} - {self.term}'
+
+
 
 
 class Student(models.Model):
