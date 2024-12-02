@@ -22,13 +22,13 @@
         {% for area in assessment_data %}
         <div class="card mb-4">
             <div class="card-header">
-                <h4>{{ area.name }} - {{ area.subject }}</h4>
+                <h4>{{ area.name }}</h4>
             </div>
             <div class="card-body">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Sub Area</th>
+                            <th>Assessment Area</th>
                             <th>Grade</th>
                         </tr>
                     </thead>
@@ -62,6 +62,16 @@
 
         <div class="card mb-4">
             <div class="card-header">
+                <h4>Teacher's General Comment</h4>
+            </div>
+            <div class="card-body">
+                <textarea name="teacher_general_comment" id="teacher_general_comment" class="form-control"
+                    rows="4">{{ result.teacher_general_comment }}</textarea>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
                 <h4>Head Teacher's Comment</h4>
             </div>
             <div class="card-body">
@@ -85,6 +95,7 @@
         const gradeSelects = document.querySelectorAll('.grade-select');
         const teacherComments = document.querySelectorAll('.teacher-comment');
         const headTeacherComment = document.getElementById('head_teacher_comment');
+        const teacher_general_comment = document.getElementById('teacher_general_comment');
 
         function updateData(data) {
             fetch('{% url "admin:update_grade" %}', {
@@ -121,6 +132,12 @@
         headTeacherComment.addEventListener('change', function () {
             updateData({
                 head_teacher_comment: this.value
+            });
+        });
+
+        teacher_general_comment.addEventListener('change', function () {
+            updateData({
+                teacher_general_comment: this.value
             });
         });
     });

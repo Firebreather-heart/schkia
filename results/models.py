@@ -87,7 +87,7 @@ class AssessmentArea(models.Model):
     teacher_comment = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f'{self.name} - {self.subject}'
+        return f'{self.name}'
 
     class Meta:
         verbose_name = 'Result Subsection'
@@ -163,10 +163,18 @@ class StudentResult(models.Model):
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
     teacher_general_comment = models.CharField(max_length=200, blank=True, null=True)
     head_teacher_comment = models.CharField(max_length=200, blank=True, null=True)
+    section = models.ForeignKey(
+        AssessmentSection, 
+        on_delete=models.CASCADE,
+        related_name = 'student_results', 
+        null = True
+    )
+    date = models.DateField(auto_now=True)
 
     class Meta:
         verbose_name = 'Result'
         verbose_name_plural = 'Results'
+        unique_together = ('student', 'term', 'section')
 
     def __str__(self):
         return f'Result for {self.student} - {self.term}'
@@ -186,18 +194,6 @@ class Student(models.Model):
     phone_number = models.CharField(max_length=50)
     roll_id = models.CharField(max_length=10, unique=True)
     number = models.CharField(max_length=10, unique=True)
-    CLASS_OPTIONS = (
-        ('N1', 'Nursery 1'),
-        ('N2', 'Nursery 2'),
-        ('PG1', 'Playgroup 1'),
-        ('PG2', 'Playgroup 2'),
-        ('Y1', 'Year 1'),
-        ('Y2', 'Year 2'),
-        ('Y3', 'Year 3'),
-        ('Y4', 'Year 4'),
-        ('Y5', 'Year 5'),
-        ('Y6', 'Year 6'),
-    )
     classroom = models.ForeignKey(ClassRoom,
                                   on_delete=models.CASCADE,
                                   related_name='students',

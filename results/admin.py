@@ -178,31 +178,13 @@ class AssessmentAreaAdmin(admin.ModelAdmin):
     inlines = [AssessmentSubAreaInline]
 
 
-class AssessmentSectionFilter(admin.SimpleListFilter):
-    title = 'Assessment Section'
-    parameter_name = 'assessment_section'
 
-    def lookups(self, request, model_admin):
-        # Get sections with their classroom names
-        sections = AssessmentSection.objects.filter(
-            assessment_areas__assessment_subareas__isnull=False
-        ).distinct().values_list('id', 'name', 'classroom__name')
-
-        # Format display string: "Section Name - Classroom"
-        return [(str(id), f"{name} - {classroom}")
-                for id, name, classroom in sections]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            section = AssessmentSection.objects.get(id=self.value())
-            return queryset.filter(term=section.term).distinct()
-        return queryset
 
 @admin.register(StudentResult)
 class StudentResultAdmin(admin.ModelAdmin):
-    list_display = ['student', 'term', 'student__classroom']
-    search_fields = ['student__fullname', 'term__term']
-    list_filter = ['term__term', 'student__classroom', AssessmentSectionFilter]
+    list_display = ['student', 'term', 'student__classroom', 'section']
+    search_fields = ['student__fullname', 'term__term', 'section__name']
+    list_filter = ['term__term', 'student__classroom', 'section']
     change_list_template = 'admin/results_changelist.html'
 
     def get_grade_choices(self):
@@ -411,7 +393,8 @@ class StudentResultAdmin(admin.ModelAdmin):
             # Process form submission
             result = StudentResult.objects.create(
                 student=student,
-                term=term
+                term=term,
+                section = section,
             )
 
             for key, value in request.POST.items():
@@ -550,6 +533,11 @@ class StudentResultAdmin(admin.ModelAdmin):
                 # Handle head teacher comment
                 if 'head_teacher_comment' in data:
                     result.head_teacher_comment = data.get('head_teacher_comment')
+                    result.save()
+
+                if 'teacher_general_comment' in data:
+                    result.teacher_general_comment = data.get(
+                        'teacher_general_comment')
                     result.save()
 
                 return JsonResponse({

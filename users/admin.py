@@ -43,19 +43,17 @@ class ClassRoomNameFilter(admin.SimpleListFilter):
 
 class StudentAdmin(admin.ModelAdmin):
     list_display = ('fullname', 'date_of_birth', 'hostel', 'gender',
-                    'phone_number', 'roll_id', 'number', 'class_', 'created_at')
+                    'phone_number', 'roll_id', 'number', 'classroom', 'created_at')
     search_fields = ('fullname', 'phone_number',
-                     'roll_id', 'number', 'class_name')
+                     'roll_id', 'number', 'classroom')
     list_filter = ('gender', ClassRoomNameFilter, 'created_at')
     ordering = ('fullname',)
     fieldsets = (
         (None, {
-            'fields': ('fullname', 'date_of_birth', 'hostel', 'gender', 'phone_number', 'roll_id', 'number', 'class_name')
+            'fields': ('fullname', 'date_of_birth', 'hostel', 'gender', 'phone_number', 'roll_id', 'number', 'classroom')
         }),
     )
 
-    def class_(self, obj):
-        return obj.classroom.classname()
 
 
 admin.site.register(Student, StudentAdmin)
