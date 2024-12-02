@@ -1,89 +1,105 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_urls static %}
-
-{% block extrastyle %}
-{{ block.super }}
-<style>
-    .result-section {
-        margin-bottom: 20px;
-        background-color: #f8f9fa;
-        border-radius: 5px;
-        padding: 15px;
-    }
-
-    .result-section h3 {
-        border-bottom: 2px solid #007bff;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-    }
-
-    .result-subject {
-        margin-bottom: 15px;
-    }
-
-    .grade-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-bottom: 15px;
-    }
-
-    .grade-table th,
-    .grade-table td {
-        border: 1px solid #dee2e6;
-        padding: 10px;
-        text-align: left;
-    }
-
-    .grade-table thead {
-        background-color: #f1f4f8;
-    }
-</style>
-{% endblock %}
+{% load i18n admin_urls static jazzmin %}
 
 {% block content %}
-<div id="content-main">
-    <h1>Result Details</h1>
-
-    <div class="card">
-        <div class="card-header">
-            <h2>{{ result.student.fullname }}</h2>
-            <p>Term: {{ result.term }}</p>
-        </div>
-        <div class="card-body">
-            {% for section_name, subjects in organized_grades.items %}
-            <div class="result-section">
-                <h3>{{ section_name }}</h3>
-
-                {% for subject_name, subareas in subjects.items %}
-                <div class="result-subject">
-                    <h4>{{ subject_name }}</h4>
-                    <table class="grade-table">
-                        <thead>
-                            <tr>
-                                <th>Sub Area</th>
-                                <th>Grade</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for subarea in subareas %}
-                            <tr>
-                                <td>{{ subarea.subarea }}</td>
-                                <td>{{ subarea.grade }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+<div id="content-main" class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        Result Details for {{ result.student.fullname }} - {{ result.term }}
+                    </h3>
                 </div>
-                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <form method="post" id="grade-form">
+        {% csrf_token %}
+        <!-- Assessment Areas -->
+        <div class="row">
+            {% for area in assessment_data %}
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">
+                            <i class="fas fa-book"></i>
+                            {{ area.name }}
+                        </h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="pl-4">Sub Area</th>
+                                    <th>Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sub_area in area.sub_areas %}
+                                <tr>
+                                    <td class="pl-4">{{ sub_area.name }}</td>
+                                    <td>
+                                        <select name="grade_{{ sub_area.id }}" class="form-control grade-select"
+                                            data-subarea-id="{{ sub_area.id }}">
+                                            {% for grade_key, grade_label in sub_area.grade_options %}
+                                            <option value="{{ grade_key }}"
+                                                {% if sub_area.grade == grade_key %}selected{% endif %}>
+                                                {{ grade_label }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
-    </div>
-
-    <div class="submit-row">
-        <a href="{{ admin_site.reverse_admin_url('results_studentresult_change', current_app='results', args=[result.pk]) }}"
-            class="btn btn-secondary">Back to Edit</a>
-    </div>
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary float-right">Save Changes</button>
+            </div>
+        </div>
+    </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const gradeSelects = document.querySelectorAll('.grade-select');
+
+        gradeSelects.forEach(select => {
+            select.addEventListener('change', function () {
+                const subareaId = this.dataset.subareaId;
+                const gradeValue = this.value;
+
+                fetch('{% url "admin:update_grade" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        subarea_id: subareaId,
+                        grade: gradeValue,
+                        result_id: '{{ result.id }}'
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Optional: Show success message
+                            console.log('Grade updated successfully');
+                        }
+                    });
+            });
+        });
+    });
+</script>
 {% endblock %}

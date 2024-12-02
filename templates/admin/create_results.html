@@ -16,7 +16,7 @@
 
 {% block content %}
 <div id="content-main" class="w-100">
-    <h1 class="text-xl text-bold text-primary">{{ title }}</h1>
+    <h1 class="text-lg text-bold text-primary">{{ title }}</h1>
 
     <form method="post" class="grp-form">
         {% csrf_token %}
@@ -36,11 +36,14 @@
             {% for section in assessment_data %}
             <div class="card mb-3 ">
                 <div class="card-header">
-                    <h3 class="text-xl text-secondary text-bold">{{ section.section_name }}</h3>
+                    <h3 class="text-xl text-secondary text-bold">
+                        {{ section.section_name }}
+                    </h3>
+                    <p class="text-lg text-bold">Assessment Areas</p>
                 </div>
                 <div class="card-body ">
                     {% for area in section.areas %}
-                    <div class="assessment-area mb-3 border border-primary p-5">
+                    <div class="assessment-area mb-3 border border-primary p-5 rounded-lg">
                         <h4 class="text-xl text-primary text-bold">{{ area.area_name }}</h4>
                         {% for subarea_info in area.subareas %}
                         <div class="form-group">

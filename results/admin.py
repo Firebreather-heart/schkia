@@ -1,5 +1,7 @@
+import json
 from django.contrib import admin, messages
 from django import forms
+from django.http import JsonResponse
 from django.utils.html import format_html
 from django.urls import path, reverse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -65,7 +67,7 @@ class SelectClassForm(forms.Form):
         # Allow passing a custom queryset for classrooms
         queryset = kwargs.pop('classroom_queryset', ClassRoom.objects.all())
         super().__init__(*args, **kwargs)
-        self.fields['classroom'].queryset = queryset # type:ignore
+        self.fields['classroom'].queryset = queryset  # type:ignore
 
 
 class SelectStudentForm(forms.Form):
@@ -88,7 +90,9 @@ class SelectStudentForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         if classroom:
-            self.fields['student'].queryset = Student.objects.filter(classroom=classroom) #type:ignore
+            self.fields['student'].queryset = Student.objects.filter(  # type:ignore
+                classroom=classroom)  
+
 
 class SelectStudentTermForm(forms.Form):
     student = forms.ModelChoiceField(
@@ -106,6 +110,7 @@ class SelectStudentTermForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
 
 @admin.register(ClassRoom)
 class ClassRoomAdmin(admin.ModelAdmin):
@@ -151,9 +156,6 @@ class AssessmentAreaAdmin(admin.ModelAdmin):
     inlines = [AssessmentSubAreaInline]
 
 
-
-
-
 @admin.register(StudentResult)
 class StudentResultAdmin(admin.ModelAdmin):
     list_display = ['student', 'term']
@@ -178,19 +180,20 @@ class StudentResultAdmin(admin.ModelAdmin):
             path('<path:object_id>/detail/',
                  self.admin_site.admin_view(self.result_detail_view),
                  name='studentresult_detail'),
+            path('update_grade/',
+                 self.admin_site.admin_view(self.update_grade),
+                 name='update_grade'),
         ]
         return custom_urls + urls
-    
+
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
         extra_context['select_classroom'] = reverse('admin:select_classroom')
         return super().changelist_view(request, extra_context=extra_context)
 
     def select_classroom_view(self, request):
-        # Custom queryset for classrooms - you can modify this as needed
-        # Customize filtering here if required
         classroom_queryset = ClassRoom.objects.filter(
-            name__in = ['PG1', 'PG2', 'N1', 'N2'])
+            name__in=['PG1', 'PG2', 'N1', 'N2'])
 
         if request.method == 'POST':
             form = SelectClassForm(
@@ -209,8 +212,12 @@ class StudentResultAdmin(admin.ModelAdmin):
             'title': 'Select Classroom',
             'opts': StudentResult._meta,
         }
+        context = dict(
+            self.admin_site.each_context(request),
+            **context
+        )
         return render(request, "admin/select_classroom.html", context)
-    
+
     def select_student_view(self, request):
         classroom_id = request.GET.get('classroom_id')
         if not classroom_id:
@@ -221,14 +228,14 @@ class StudentResultAdmin(admin.ModelAdmin):
 
         if request.method == 'POST':
             form = SelectStudentForm(
-                request.POST, 
+                request.POST,
                 classroom=classroom
             )
             if form.is_valid():
                 student = form.cleaned_data['student']
                 term = form.cleaned_data['term']
                 return redirect(
-                    reverse('admin:create_results') + 
+                    reverse('admin:create_results') +
                     f'?student_id={student.id}&term_id={term.id}'
                 )
         else:
@@ -240,6 +247,10 @@ class StudentResultAdmin(admin.ModelAdmin):
             'title': f'Select Student for {classroom.classname()}',
             'opts': StudentResult._meta,
         }
+        context = dict(
+            self.admin_site.each_context(request),
+            **context
+        )
         return render(request, "admin/select_student.html", context)
 
     def select_student_term_view(self, request):
@@ -261,6 +272,10 @@ class StudentResultAdmin(admin.ModelAdmin):
             'title': 'Select Student and Term',
             'opts': StudentResult._meta,
         }
+        context = dict(
+            self.admin_site.each_context(request),
+            **context
+        )
         return render(request, "admin/select_student_term.html", context)
 
     def create_results_view(self, request):
@@ -288,7 +303,7 @@ class StudentResultAdmin(admin.ModelAdmin):
                 'areas': []
             }
 
-            for area in section.assessment_areas.all(): #type:ignore
+            for area in section.assessment_areas.all():  # type:ignore
                 area_data = {
                     'area_name': area.name,
                     'subareas': []
@@ -332,58 +347,93 @@ class StudentResultAdmin(admin.ModelAdmin):
             'assessment_data': assessment_data,
             'title': f'Create Results for {student.fullname} - {term}',
             'opts': StudentResult._meta,
-            'app_label': 'results',  
+            'app_label': 'results',
             'original': student,
         }
+        context = dict(
+            self.admin_site.each_context(request),
+            **context
+        )
         return render(request, "admin/create_results.html", context)
-    
+
     def result_detail_view(self, request, object_id):
         # Get the specific StudentResult object
         result = get_object_or_404(StudentResult, pk=object_id)
-        term = result.term 
-        print(term.assessment_sections.assessment_areas.all())
 
-        # Fetch all grades for this result
-        grades = result.grades.select_related(
-            'assessment_sub_area__area__section', 
-            'assessment_sub_area__area__subject'
-        ).order_by(
-            'assessment_sub_area__area__section__name', 
-            'assessment_sub_area__area__subject__name'
-        )
+        # Get the assessment sections for the student's classroom and term
+        assessment_section = AssessmentSection.objects.filter(
+            classroom=result.student.classroom,
+            term=result.term
+        ).prefetch_related(
+            'assessment_areas',
+            'assessment_areas__assessment_subareas',
+            'assessment_areas__subject'
+        ).first()
 
-        # Organize grades by section and area
-        organized_grades = {}
-        for grade in grades:
-            section_name = grade.assessment_sub_area.area.section.name
-            area_name = grade.assessment_sub_area.area.name
-            subject_name = grade.assessment_sub_area.area.subject.name
+        structured_data = []
 
-            if section_name not in organized_grades:
-                organized_grades[section_name] = {}
-            
-            if subject_name not in organized_grades[section_name]:
-                organized_grades[section_name][subject_name] = []
-
-            organized_grades[section_name][subject_name].append({
-                'subarea': grade.assessment_sub_area.name,
-                'grade': grade.get_grade_display()
-            })
-
-            context = {
-                'result': result,
-                'organized_grades': organized_grades,
-                'title': f'Result Details for {result.student.fullname} - {result.term}',
-                'opts': StudentResult._meta,
-                'app_label': 'results',
-                'original': result,
+        for area in assessment_section.assessment_areas.all():  # type:ignore
+            area_data = {
+                'name': area.name,
+                'subject': area.subject.name,
+                'sub_areas': []
             }
-            return render(request, "admin/result_detail.html", context)
+
+            for sub_area in area.assessment_subareas.all():
+                # Get existing grade for this result
+                grade = Grade.objects.filter(
+                    assessment_sub_area=sub_area,
+                    student=result.student,
+                    result=result
+                ).first()
+
+                sub_area_data = {
+                    'name': sub_area.name,
+                    'grade': grade.grade if grade else None,
+                    'grade_display': grade.get_grade_display() if grade else 'Not Graded',  # type:ignore
+                    'grade_options': Grade.ASSESSMENT_OPTIONS
+                }
+                area_data['sub_areas'].append(sub_area_data)
+
+            structured_data.append(area_data)
+        context = dict(
+            self.admin_site.each_context(request),
+            result=result,
+            student=result.student,
+            term=result.term,
+            assessment_data=structured_data,
+            title=f'Result Detail for {
+                result.student.fullname} - {result.term}',
+            opts=self.model._meta,
+            app_label=self.model._meta.app_label,
+            has_view_permission=self.has_view_permission(request, result),
+        )
+        return render(request, "admin/result_detail.html", context)
+    
+    def update_grade(self, request):
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            subarea_id = data.get('subarea_id')
+            grade_value = data.get('grade')
+            result_id = data.get('result_id')
+
+            result = StudentResult.objects.get(id=result_id)
+            subarea = AssessmentSubArea.objects.get(id=subarea_id)
+
+            grade, created = Grade.objects.update_or_create(
+                assessment_sub_area=subarea,
+                student=result.student,
+                result=result,
+                defaults={'grade': grade_value}
+            )
+
+            return JsonResponse({'success': True})
+        return JsonResponse({'success': False})
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         extra_context['show_detail_link'] = True
-        extra_context['detail_link'] = reverse( #type:ignore
+        extra_context['detail_link'] = reverse(  # type:ignore
             'admin:studentresult_detail',
-              args=[object_id])
+            args=[object_id])
         return super().change_view(request, object_id, form_url, extra_context)
