@@ -1,4 +1,3 @@
-<!-- templates/admin/select_classroom.html -->
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static jazzmin %}
 
@@ -9,19 +8,23 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="fas fa-chalkboard"></i>
-                        Select Classroom
+                        <i class="fas fa-tasks"></i>
+                        Select Assessment Section for {{ student.fullname }}
                     </h3>
                 </div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
                         <div class="form-group">
-                            {{ form.classroom.label_tag }}
-                            {{ form.classroom }}
+                            <select name="assessment_section" class="form-control" required>
+                                <option value="">---------</option>
+                                {% for section in assessment_sections %}
+                                <option value="{{ section.id }}">{{ section.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-3">
-                            Next
+                        <button type="submit" class="btn btn-primary">
+                            Continue to Create Results
                         </button>
                     </form>
                 </div>

@@ -1,21 +1,36 @@
+<!-- templates/admin/select_student.html -->
 {% extends "admin/base_site.html" %}
-{% load i18n admin_urls static %}
+{% load i18n admin_urls static jazzmin %}
+
 {% block content %}
-<div id="content-main">
-    <h1>{{ title }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-row">
-            {{ form.student.label_tag }}
-            {{ form.student }}
+<div id="content-main" class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user-graduate"></i>
+                        {{ title }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.student.label_tag }}
+                            {{ form.student }}
+                        </div>
+                        <div class="form-group mt-3">
+                            {{ form.term.label_tag }}
+                            {{ form.term }}
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">
+                            Next
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="form-row">
-            {{ form.term.label_tag }}
-            {{ form.term }}
-        </div>
-        <div class="submit-row">
-            <input type="submit" value="Next" class="btn btn-primary">
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

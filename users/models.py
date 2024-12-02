@@ -1,9 +1,22 @@
-import uuid
+import uuid, os
+from django.core.exceptions import ValidationError
+from django.core.files.images import get_image_dimensions
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
 
 
+def validate_file_size(value):
+    filesize = value.size
+    if filesize > 512000:  # 500KB = 512000 bytes
+        raise ValidationError("Maximum file size is 500KB")
+    
+
+def signature_upload_path(instance, filename):
+    # Get the file extension
+    ext = filename.split('.')[-1]
+    # Create filename pattern: student_id_term_id.extension
+    return f'signatures/{instance.student.id}_{instance.term.id}.{ext}'
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -33,6 +46,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
+    signature = models.ImageField(
+        upload_to=signature_upload_path,
+        validators=[validate_file_size],
+        blank=True,
+        null=True,
+        help_text="Signature image (max 500KB)"
+    )
 
     objects = CustomUserManager()
 

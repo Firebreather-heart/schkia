@@ -1,70 +1,63 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_urls static %}
-
-{% block extrastyle %}
-{{ block.super }}
-<style>
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .grade-section {
-        margin-top: 20px;
-    }
-</style>
-{% endblock %}
+{% load i18n admin_urls static jazzmin %}
 
 {% block content %}
-<div id="content-main" class="w-100">
-    <h1 class="text-lg text-bold text-primary">{{ title }}</h1>
-
-    <form method="post" class="grp-form">
-        {% csrf_token %}
-
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label>{{ form.term.label }}</label>
-                {{ form.term }}
-            </div>
-            <div class="form-group col-md-6">
-                <label>{{ form.assessment_section.label }}</label>
-                {{ form.assessment_section }}
+<div id="content-main" class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-plus-circle"></i>
+                        {{ title }}
+                    </h3>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="grade-sections ">
-            {% for section in assessment_data %}
-            <div class="card mb-3 ">
-                <div class="card-header">
-                    <h3 class="text-xl text-secondary text-bold">
-                        {{ section.section_name }}
-                    </h3>
-                    <p class="text-lg text-bold">Assessment Areas</p>
-                </div>
-                <div class="card-body ">
-                    {% for area in section.areas %}
-                    <div class="assessment-area mb-3 border border-primary p-5 rounded-lg">
-                        <h4 class="text-xl text-primary text-bold">{{ area.area_name }}</h4>
-                        {% for subarea_info in area.subareas %}
-                        <div class="form-group">
-                            <label class="text-secondary">{{ subarea_info.subarea.name }}</label>
-                            <select name="grade_{{ subarea_info.subarea.id }}" class="form-control">
-                                {% for grade_key, grade_value in subarea_info.grade_options %}
-                                <option value="{{ grade_key }}">{{ grade_value }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+    <form method="post" id="grade-form">
+        {% csrf_token %}
+        {% for section_data in assessment_data %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>{{ section_data.section_name }}</h4>
+            </div>
+            {% for area in section_data.areas %}
+            <div class="card-body border-bottom">
+                <h5>{{ area.area_name }}</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sub Area</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subarea_data in area.subareas %}
+                        <tr>
+                            <td>{{ subarea_data.subarea.name }}</td>
+                            <td>
+                                <select name="grade_{{ subarea_data.subarea.id }}" class="form-control" required>
+                                    <option value="">Select Grade</option>
+                                    {% for grade_key, grade_label in subarea_data.grade_options %}
+                                    <option value="{{ grade_key }}">{{ grade_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
                         {% endfor %}
-                    </div>
-                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="form-group mt-3">
+                    <label>Teacher's Comment</label>
+                    <textarea name="comment_{{ area.id }}" class="form-control" rows="3"></textarea>
                 </div>
             </div>
             {% endfor %}
         </div>
-
-        <div class="submit-row">
-            <input type="submit" value="Save Grades" class="btn btn-primary">
-        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save Results</button>
     </form>
 </div>
 {% endblock %}

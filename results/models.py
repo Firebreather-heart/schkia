@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.forms import ValidationError
 # Create your models here.
 
 
@@ -61,7 +62,7 @@ class AssessmentSection(models.Model):
                                   related_name='assessment_sections')
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.name} - {self.classroom}'
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -83,6 +84,7 @@ class AssessmentArea(models.Model):
         AssessmentSection, on_delete=models.CASCADE, related_name='assessment_areas')
     subject = models.ForeignKey(
         Subject, on_delete=models.CASCADE, related_name='subjects')
+    teacher_comment = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return f'{self.name} - {self.subject}'
@@ -96,43 +98,75 @@ class AssessmentSubArea(models.Model):
     name = models.CharField(max_length=50)
     area = models.ForeignKey(AssessmentArea,
                              on_delete=models.CASCADE, related_name='assessment_subareas')
+    
 
     def __str__(self):
         return self.name
 
 
+class GradeType(models.Model):
+    code = models.CharField(max_length=15, unique=True)
+    label = models.CharField(max_length=50)
+    is_default = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Grade'
+        verbose_name_plural = 'Grades'
+
+    def __str__(self):
+        return f"{self.code} - {self.label}"
+
+    @classmethod
+    def get_choices(cls):
+        return [(grade.code, grade.label) for grade in cls.objects.all()]
+    
+
 class Grade(models.Model):
-    ASSESSMENT_OPTIONS = (
+    DEFAULT_GRADES = [
         ('EX', 'Excellent'),
         ('VG', 'Very Good'),
         ('G', 'Good'),
         ('W.I.P', 'Work in Progress'),
         ('NA', 'Not Applicable'),
+    ]
+
+    grade = models.ForeignKey(
+        GradeType,
+        on_delete=models.PROTECT,  # Prevent deletion of grade types that are in use
+        related_name='grades'
     )
-    grade = models.CharField(
-        max_length=15, choices=ASSESSMENT_OPTIONS, editable=True)
     assessment_sub_area = models.ForeignKey(
-        AssessmentSubArea, on_delete=models.CASCADE)
+        AssessmentSubArea,
+        on_delete=models.CASCADE
+    )
     student = models.ForeignKey(
-        'Student', on_delete=models.CASCADE, related_name='grades')
+        'Student',
+        on_delete=models.CASCADE,
+        related_name='grades'
+    )
     result = models.ForeignKey(
-        'StudentResult', on_delete=models.CASCADE, related_name='grades')
+        'StudentResult',
+        on_delete=models.CASCADE,
+        related_name='grades'
+    )
 
     class Meta:
         unique_together = ('assessment_sub_area', 'student')
 
     def __str__(self):
-        return f'{self.grade}'
+        return str(self.grade)
 
 
 class StudentResult(models.Model):
     student = models.ForeignKey(
         'Student', on_delete=models.CASCADE, related_name='results')
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
+    teacher_general_comment = models.CharField(max_length=200, blank=True, null=True)
+    head_teacher_comment = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Record Result'
-        verbose_name_plural = 'Record Results'
+        verbose_name = 'Result'
+        verbose_name_plural = 'Results'
 
     def __str__(self):
         return f'Result for {self.student} - {self.term}'
