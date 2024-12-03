@@ -6,7 +6,74 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4 text-center">Student Results for {{ child.fullname }}</h2>
+
+    <h2 class="text-center py-5">PRE SCHOOL OBSERVATION REPORT</h2>
+
+    <div id="child-info">
+            <div class="row">
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Child's' Name</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment">{{ child.fullname }}</p>
+                    </div>
+                </div>
+            
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Class</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment">{{ child.classroom.classname }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Date of Birth</label>
+                    <div class="comment-box">
+                        <p id="date-of-birth">{{ child.date_of_birth }}</p>
+                    </div>
+                </div>
+            
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Term</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment">{{ student_result.term }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Age</label>
+                    <div class="comment-box">
+                        <p id="age"></p>
+                    </div>
+                </div>
+            
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Year</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment">{{ student_result.term.session }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">           
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Sex</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment">{{ child.gender }}</p>
+                    </div>
+                </div>
+
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Admission Number</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment">{{ child.roll_id }}</p>
+                    </div>
+                </div>
+            </div>
+    </div>
 
     {% if subject_data %}
     {% for subject in subject_data %}
@@ -111,5 +178,45 @@
     </div>
     {% endif %}
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the date of birth from the DOM
+        const dobElement = document.getElementById('date-of-birth');
+        const ageElement = document.getElementById('age');
+
+        if (dobElement && ageElement) {
+            const dobString = dobElement.textContent.trim();
+            const dob = new Date(dobString);
+
+            if (isNaN(dob)) {
+                ageElement.textContent = "Invalid DOB";
+                return;
+            }
+
+            const today = new Date();
+            let years = today.getFullYear() - dob.getFullYear();
+            let months = today.getMonth() - dob.getMonth();
+            let days = today.getDate() - dob.getDate();
+
+            if (days < 0) {
+                months -= 1;
+                days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+
+            if (months < 0) {
+                years -= 1;
+                months += 12;
+            }
+
+            // Handle future DOB
+            if (years < 0 || (years === 0 && months < 0)) {
+                ageElement.textContent = "Invalid DOB";
+                return;
+            }
+
+            ageElement.textContent = `${years} years, ${months} months`;
+        }
+    });
+</script>
 {% endblock %}
 
