@@ -41,7 +41,7 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=False)
+    email = models.EmailField(unique=False, default='', blank=True)
     username = models.CharField(max_length=50, blank=True, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -61,7 +61,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
 
     def __str__(self):
-        return self.email
+        return self.username
     
     def save(self, *args, **kwargs):
         return super(CustomUser, self).save(*args, **kwargs)
@@ -71,11 +71,12 @@ class Parent(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
     fullname = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=50, unique=True)
-    address = models.CharField(max_length=50)
-    gender = models.CharField(max_length=50)
-    occupation = models.CharField(max_length=50)
-    photo = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
-    student = models.ForeignKey('results.Student', on_delete=models.CASCADE, related_name='parents', null=True, blank=True)
+    address = models.CharField(max_length=50, blank=True, null=True)
+    gender = models.CharField(max_length=50, blank=True, null=True)
+    occupation = models.CharField(max_length=50, blank=True, null=True)
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True, null=True)
+    students = models.ManyToManyField(
+        'results.Student', related_name='parents', blank=True)
 
     def __str__(self):
         return self.fullname

@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, Parent
 from results.models import Student, ClassRoom
 
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ['email', 'username', 'is_staff', 'is_active']
+    list_display = ['username', 'is_staff', 'is_active']
     list_filter = ['is_staff', 'is_active']
     fieldsets = (
         (None, {'fields': ('email', 'password', 'signature')}),
@@ -55,6 +55,18 @@ class StudentAdmin(admin.ModelAdmin):
     )
 
 
+class ParentAdmin(admin.ModelAdmin):
+    list_display = ('fullname', 'phone_number', )
+    search_fields = ('fullname', 'phone_number',  'students')
+    ordering = ('fullname',)
+    # fieldsets = (
+    #     (None, {
+    #         'fields': ('fullname', 'phone_number', )
+    #     }),
+    # )
+
+
+admin.site.register(Parent, ParentAdmin)
 
 admin.site.register(Student, StudentAdmin)
 
