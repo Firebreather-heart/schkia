@@ -329,9 +329,8 @@ class StudentResultAdmin(admin.ModelAdmin):
             section_id = request.POST.get('assessment_section')
             if section_id:
                 return redirect(
-                    reverse('admin:create_results') +
-                    f'?student_id={student_id}&term_id={
-                        term_id}&section_id={section_id}'
+                    reverse('admin:create_results') + 
+                    f'?student_id={student_id}&term_id={term_id}&section_id={section_id}'
                 )
 
         assessment_sections = AssessmentSection.objects.filter(
