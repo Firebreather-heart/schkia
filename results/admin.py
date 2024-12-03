@@ -640,13 +640,10 @@ class ResultGenerationAdmin(admin.ModelAdmin):
         # Prepare Grades Dictionary
         grades_dict = {}
         for result in student_results:
-            print(result)
             for grade in result.grades.all():
-                print(grade)
                 subarea_id = grade.assessment_sub_area.id
                 grade_type_id = grade.grade.id  # Corrected from grade.grade_type.id
                 grades_dict.setdefault(subarea_id, {})[grade_type_id] = grade
-        print(grades_dict)
         context = {
             'title': 'Generated Results',
             'student': student,
