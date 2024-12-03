@@ -203,3 +203,12 @@ class Student(models.Model):
 
     def __str__(self):
         return self.fullname
+
+
+class ResultGeneration(models.Model):
+    id = models.AutoField(primary_key=True)
+    
+    class Meta:
+        managed = True  # No database table needed
+        verbose_name_plural = "Result Generation"
+        app_label = 'results'

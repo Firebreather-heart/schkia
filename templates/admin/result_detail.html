@@ -41,7 +41,7 @@
                                     data-subarea-id="{{ sub_area.id }}">
                                     {% for grade_key, grade_label in sub_area.grade_options %}
                                     <option value="{{ grade_key }}"
-                                        {% if sub_area.grade == grade_key %}selected{% endif %}>
+                                        {% if sub_area.grade.code == grade_key %}selected{% endif %}>
                                         {{ grade_label }}
                                     </option>
                                     {% endfor %}

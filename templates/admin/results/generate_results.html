@@ -1,0 +1,135 @@
+<!-- templates/admin/results/generate_results.html -->
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Selection Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Generate Results</h3>
+                </div>
+                <div class="card-body">
+                    <form id="result-selector" method="GET" action="{% url 'admin:show_results' %}">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="session">Academic Session</label>
+                                <select class="form-control" id="session" name="session" required>
+                                    <option value="">Select Session</option>
+                                    {% for session in sessions %}
+                                    <option value="{{ session.id }}">{{ session.session }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="term">Term</label>
+                                <select class="form-control" id="term" name="term" required>
+                                    <option value="">Select Term</option>
+                                    {% for term in terms %}
+                                    <option value="{{ term.id }}">{{ term.term }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="classroom">Classroom</label>
+                                <select class="form-control" id="classroom" name="classroom" required disabled>
+                                    <option value="">Select Classroom</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="student">Student</label>
+                                <select class="form-control" id="student" name="student" required disabled>
+                                    <option value="">Select Student</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-primary" id="next-btn" disabled>
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sessionSelect = document.getElementById('session');
+        const termSelect = document.getElementById('term');
+        const classroomSelect = document.getElementById('classroom');
+        const studentSelect = document.getElementById('student');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Update Classrooms based on Session and Term
+        async function updateClassrooms() {
+            const sessionId = sessionSelect.value;
+            const termId = termSelect.value;
+
+            if (!sessionId || !termId) {
+                classroomSelect.innerHTML = '<option value="">Select Classroom</option>';
+                classroomSelect.disabled = true;
+                updateStudents();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/results/resultgeneration/get-classrooms/${sessionId}/${termId}/`);
+                const data = await response.json();
+
+                classroomSelect.innerHTML = '<option value="">Select Classroom</option>';
+                data.classrooms.forEach(classroom => {
+                    classroomSelect.innerHTML += `<option value="${classroom.id}">${classroom.name}</option>`;
+                });
+                classroomSelect.disabled = false;
+                updateStudents();
+            } catch (error) {
+                console.error('Error fetching classrooms:', error);
+            }
+        }
+
+        // Update Students based on Classroom
+        async function updateStudents() {
+            const classroomId = classroomSelect.value;
+            if (!classroomId) {
+                studentSelect.innerHTML = '<option value="">Select Student</option>';
+                studentSelect.disabled = true;
+                nextBtn.disabled = true;
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/results/resultgeneration/get-students/${classroomId}/`);
+                const data = await response.json();
+
+                studentSelect.innerHTML = '<option value="">Select Student</option>';
+                data.students.forEach(student => {
+                    studentSelect.innerHTML += `<option value="${student.id}">${student.fullname}</option>`;
+                });
+                studentSelect.disabled = false;
+                nextBtn.disabled = true;
+            } catch (error) {
+                console.error('Error fetching students:', error);
+            }
+        }
+
+        // Enable Next button when student is selected
+        studentSelect.addEventListener('change', function () {
+            nextBtn.disabled = !this.value;
+        });
+
+        // Event Listeners
+        sessionSelect.addEventListener('change', updateClassrooms);
+        termSelect.addEventListener('change', updateClassrooms);
+        classroomSelect.addEventListener('change', updateStudents);
+    });
+</script>
+{% endblock %}

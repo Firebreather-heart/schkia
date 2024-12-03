@@ -7,7 +7,7 @@ from django.utils.html import format_html
 from django.urls import path, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import (
-    ClassRoom, Subject, AcademicSession, Term, AssessmentArea, AssessmentSection, AssessmentSubArea, StudentResult, Grade, GradeType
+    ClassRoom, ResultGeneration, Subject, AcademicSession, Term, AssessmentArea, AssessmentSection, AssessmentSubArea, StudentResult, Grade, GradeType
 )
 from results.models import Student
 
@@ -48,7 +48,8 @@ class CreateResultsForm(forms.Form):
         assessment_section_id = kwargs.pop('assessment_section_id', None)
         super().__init__(*args, **kwargs)
         if term_id:
-            self.fields['assessment_section'].queryset = AssessmentSection.objects.filter(term_id=term_id)  # type:ignore
+            self.fields['assessment_section'].queryset = AssessmentSection.objects.filter(
+                term_id=term_id)  # type:ignore
         if assessment_section_id:
             self.assessment_areas = AssessmentArea.objects.filter(
                 section_id=assessment_section_id)
@@ -92,7 +93,7 @@ class SelectStudentForm(forms.Form):
 
         if classroom:
             self.fields['student'].queryset = Student.objects.filter(  # type:ignore
-                classroom=classroom)  
+                classroom=classroom)
 
 
 class SelectStudentTermForm(forms.Form):
@@ -152,6 +153,7 @@ class GradeTypeAdmin(admin.ModelAdmin):
             GradeType.objects.filter(is_default=True).update(is_default=False)
         super().save_model(request, obj, form, change)
 
+
 class AssessmentSectionForm(forms.ModelForm):
     session = forms.ModelChoiceField(
         queryset=Term.objects.all(), required=True)
@@ -176,8 +178,6 @@ class AssessmentAreaAdmin(admin.ModelAdmin):
     list_filter = ('section', 'subject__classroom')
     search_fields = ('name', 'section__name', 'subject__name')
     inlines = [AssessmentSubAreaInline]
-
-
 
 
 @admin.register(StudentResult)
@@ -301,7 +301,7 @@ class StudentResultAdmin(admin.ModelAdmin):
                     f'?student_id={student.id}&term_id={term.id}'
                 )
         else:
-            form = SelectStudentTermForm(classroom = classroom)
+            form = SelectStudentTermForm(classroom=classroom)
 
         context = {
             'form': form,
@@ -313,7 +313,7 @@ class StudentResultAdmin(admin.ModelAdmin):
             **context
         )
         return render(request, "admin/select_student_term.html", context)
-    
+
     def select_assessment_section_view(self, request):
         student_id = request.GET.get('student_id')
         term_id = request.GET.get('term_id')
@@ -330,9 +330,10 @@ class StudentResultAdmin(admin.ModelAdmin):
             if section_id:
                 return redirect(
                     reverse('admin:create_results') +
-                    f'?student_id={student_id}&term_id={term_id}&section_id={section_id}'
+                    f'?student_id={student_id}&term_id={
+                        term_id}&section_id={section_id}'
                 )
-            
+
         assessment_sections = AssessmentSection.objects.filter(
             classroom=student.classroom,
             term=term
@@ -370,7 +371,7 @@ class StudentResultAdmin(admin.ModelAdmin):
             'areas': []
         }
 
-        for area in section.assessment_areas.all(): #type:ignore
+        for area in section.assessment_areas.all():  # type:ignore
             area_data = {
                 'id': area.id,
                 'area_name': area.name,
@@ -387,13 +388,12 @@ class StudentResultAdmin(admin.ModelAdmin):
 
         assessment_data.append(section_data)
 
-
         if request.method == 'POST':
             # Process form submission
             result = StudentResult.objects.create(
                 student=student,
                 term=term,
-                section = section,
+                section=section,
             )
 
             for key, value in request.POST.items():
@@ -401,14 +401,16 @@ class StudentResultAdmin(admin.ModelAdmin):
                     try:
                         subarea_id = int(key.split('_')[1])
                         subarea = AssessmentSubArea.objects.get(id=subarea_id)
-                        Grade.objects.get_or_create(
-                            grade=value,
+                        grade_type = GradeType.objects.get(code=value)
+                        grade, created = Grade.objects.get_or_create(
+                            grade=grade_type,
                             assessment_sub_area=subarea,
                             student=student,
                             result=result
                         )
-                    except (ValueError, AssessmentSubArea.DoesNotExist, IntegrityError):
-                        continue
+                    except (ValueError, AssessmentSubArea.DoesNotExist, IntegrityError) as e:
+                        messages.error(
+                            request, f"Error creating grade for {subarea.name}")
 
                 elif key.startswith('comment_') and value:
                     try:
@@ -416,8 +418,10 @@ class StudentResultAdmin(admin.ModelAdmin):
                         area = AssessmentArea.objects.get(id=area_id)
                         area.teacher_comment = value
                         area.save()
-                    except (ValueError, AssessmentArea.DoesNotExist):
-                        continue
+                    except (ValueError, AssessmentArea.DoesNotExist) as e:
+                        print(e)
+                        messages.error(
+                            request, f"Error saving comment for {area.name}")
 
             messages.success(request, "Results created successfully.")
             return redirect(reverse('admin:results_studentresult_changelist'))
@@ -459,7 +463,7 @@ class StudentResultAdmin(admin.ModelAdmin):
 
         structured_data = []
 
-        for area in section.assessment_areas.all(): #type:ignore
+        for area in section.assessment_areas.all():  # type:ignore
             area_data = {
                 'name': area.name,
                 'subject': area.subject.name,
@@ -479,7 +483,7 @@ class StudentResultAdmin(admin.ModelAdmin):
                     'name': sub_area.name,
                     'id': sub_area.id,
                     'grade': grade.grade if grade else None,
-                    'grade_display': grade.get_grade_display() if grade else 'Not Graded', #type:ignore
+                    'grade_display': grade.grade.label if grade else 'Not Graded',  # type:ignore
                     'grade_options': Grade.DEFAULT_GRADES
                 }
                 area_data['sub_areas'].append(sub_area_data)
@@ -497,8 +501,6 @@ class StudentResultAdmin(admin.ModelAdmin):
             has_view_permission=self.has_view_permission(request, result),
         )
         return render(request, "admin/result_detail.html", context)
-        
-
 
     def update_grade(self, request):
         if request.method == 'POST':
@@ -513,12 +515,12 @@ class StudentResultAdmin(admin.ModelAdmin):
                     subarea_id = data.get('subarea_id')
                     grade_value = data.get('grade')
                     subarea = AssessmentSubArea.objects.get(id=subarea_id)
-
+                    grade_type = GradeType.objects.get(code=grade_value) 
                     grade, created = Grade.objects.update_or_create(
                         assessment_sub_area=subarea,
                         student=result.student,
                         result=result,
-                        defaults={'grade': grade_value}
+                        defaults={'grade': grade_type}
                     )
 
                 # Handle teacher comments
@@ -531,7 +533,8 @@ class StudentResultAdmin(admin.ModelAdmin):
 
                 # Handle head teacher comment
                 if 'head_teacher_comment' in data:
-                    result.head_teacher_comment = data.get('head_teacher_comment')
+                    result.head_teacher_comment = data.get(
+                        'head_teacher_comment')
                     result.save()
 
                 if 'teacher_general_comment' in data:
@@ -562,3 +565,159 @@ class StudentResultAdmin(admin.ModelAdmin):
             'admin:studentresult_detail',
             args=[object_id])
         return super().change_view(request, object_id, form_url, extra_context)
+
+
+@admin.register(ResultGeneration)
+class ResultGenerationAdmin(admin.ModelAdmin):
+    # change_list_template = "admin/results/resultgeneration_change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('generate-result/',
+                 self.admin_site.admin_view(self.generate_results_view),
+                 name='generate_result'),
+            path("show-results/", self.admin_site.admin_view(self.show_results_view),
+                 name="show_results"),
+            path('get-classrooms/<int:session_id>/<int:term_id>/',
+                 self.admin_site.admin_view(self.get_classrooms),
+                 name='get_classrooms'),
+            path('get-students/<int:classroom_id>/',
+                 self.admin_site.admin_view(self.get_students),
+                 name='get_students'),
+            path('save-grade/',
+                 self.admin_site.admin_view(self.save_grade),
+                 name='save_grade'),
+        ]
+        return custom_urls + urls
+
+    def generate_results_view(self, request):
+        context = {
+            'title': 'Generate Results',
+            'sessions': AcademicSession.objects.all(),
+            'terms': Term.objects.all(),
+            'opts': self.model._meta,
+            **self.admin_site.each_context(request),
+        }
+        return render(request, 'admin/results/generate_results.html', context)
+
+    def show_results_view(self, request):
+        """
+        Processes the selected parameters and displays the generated results.
+        """
+        session_id = request.GET.get('session')
+        term_id = request.GET.get('term')
+        classroom_id = request.GET.get('classroom')
+        student_id = request.GET.get('student')
+
+        if not all([session_id, term_id, classroom_id, student_id]):
+            messages.error(
+                request, "All fields are required to generate results.")
+            return redirect(reverse('admin:generate_result'))
+
+        # Fetch the selected entities
+        try:
+            session = AcademicSession.objects.get(id=session_id)
+            term = Term.objects.get(id=term_id)
+            classroom = ClassRoom.objects.get(id=classroom_id)
+            student = Student.objects.get(id=student_id)
+        except (AcademicSession.DoesNotExist, Term.DoesNotExist, ClassRoom.DoesNotExist, Student.DoesNotExist):
+            messages.error(request, "Invalid selection. Please try again.")
+            return redirect(reverse('admin:generate_result'))
+
+        # Fetch Assessment Sections related to the classroom and term
+        assessment_sections = AssessmentSection.objects.filter(
+            classroom=classroom, term=term).prefetch_related('assessment_areas__assessment_subareas')
+
+        # Fetch Grade Types
+        grade_types = GradeType.objects.all()
+
+        # Fetch existing Student Results
+        student_results = StudentResult.objects.filter(
+            student=student, term=term, section__in=assessment_sections
+        ).prefetch_related('grades__grade', 'grades__assessment_sub_area')
+
+        # Prepare Grades Dictionary
+        grades_dict = {}
+        for result in student_results:
+            print(result)
+            for grade in result.grades.all():
+                print(grade)
+                subarea_id = grade.assessment_sub_area.id
+                grade_type_id = grade.grade.id  # Corrected from grade.grade_type.id
+                grades_dict.setdefault(subarea_id, {})[grade_type_id] = grade
+        print(grades_dict)
+        context = {
+            'title': 'Generated Results',
+            'student': student,
+            'session': session,
+            'term': term,
+            'classroom': classroom,
+            'assessment_sections': assessment_sections,
+            'grade_types': grade_types,
+            'grades_dict': grades_dict,
+            'opts': self.model._meta,
+            **self.admin_site.each_context(request),
+        }
+
+        return render(request, 'admin/results/show_results.html', context)
+
+    def save_grade(self, request):
+        """
+        Saves the grade selected by the admin.
+        """
+        if request.method == "POST":
+            data = json.loads(request.body)
+            subarea_id = data.get("subarea_id")
+            grade_value = data.get("grade")
+            student_id = data.get("student_id")
+
+            try:
+                grade_type = GradeType.objects.get(label=grade_value)
+                sub_area = AssessmentSubArea.objects.get(id=subarea_id)
+                student = Student.objects.get(id=student_id)
+
+                # Create or update the grade
+                grade, created = Grade.objects.update_or_create(
+                    assessment_sub_area=sub_area,
+                    student=student,
+                    defaults={'grade': grade_type},
+                )
+                return JsonResponse({"success": True, "message": "Grade saved successfully."})
+            except (GradeType.DoesNotExist, AssessmentSubArea.DoesNotExist, Student.DoesNotExist):
+                return JsonResponse({"success": False, "message": "Invalid data provided."}, status=400)
+
+        return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+
+    def has_module_permission(self, request):
+        # Always show in admin index
+        return True
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def get_classrooms(self, request, session_id, term_id):
+        """
+        Returns classrooms based on selected session and term.
+        """
+        classrooms = ClassRoom.objects.filter(
+            name__in=['PG1', 'PG2', 'N1', 'N2']
+        ).distinct()
+        classroom_list = [{"id": c.id, "name": c.name}
+                          for c in classrooms]  # type:ignore
+        return JsonResponse({"classrooms": classroom_list})
+
+    def get_students(self, request, classroom_id):
+        """
+        Returns students based on selected classroom.
+        """
+        students = Student.objects.filter(classroom__id=classroom_id)
+        student_list = [{"id": s.id, "fullname": s.fullname}
+                        for s in students]  # type:ignore
+        return JsonResponse({"students": student_list})

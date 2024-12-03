@@ -1,10 +1,33 @@
 {% extends "admin/change_list.html" %}
-{% load i18n admin_urls static %}
+{% load i18n admin_urls jazzmin static %}
 
 {% block object-tools-items %}
-<li>
-    <a href="{% url 'admin:select_classroom' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Create Results
-    </a>
-</li>
+<div class="object-tools">
+    <ul class="object-tools d-flex gap-2"> <!-- Added d-flex and gap-2 -->
+        <li class="mr-2"> <!-- Added margin-end -->
+            <a href="{% url 'admin:generate_result' %}" class="addlink btn btn-info">
+                Generate Results
+            </a>
+        </li>
+        {% if has_add_permission %}
+        <li>
+            <a href="{% url 'admin:select_classroom' %}" class="addlink btn btn-primary">
+                {% blocktranslate with name=opts.verbose_name %}Add {{ name }}{% endblocktranslate %}
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+
+<style>
+    .object-tools {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .object-tools li {
+        display: inline-block;
+    }
+</style>
 {% endblock %}

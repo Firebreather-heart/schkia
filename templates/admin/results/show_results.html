@@ -1,0 +1,72 @@
+<!-- templates/admin/results/show_results.html -->
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% load dictionary_tags %}
+
+<pre>
+    {{ grades_dict | pprint }}
+</pre>
+
+{% block content %}
+<div class="container-fluid">
+    <h2>Results for {{ student.fullname }}</h2>
+    <p><strong>Session:</strong> {{ session.session }}</p>
+    <p><strong>Term:</strong> {{ term.term }}</p>
+    <p><strong>Classroom:</strong> {{ classroom.name }}</p>
+
+    {% for section in assessment_sections %}
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h4>{{ section.name }}</h4>
+        </div>
+        <div class="card-body">
+            {% for area in section.assessment_areas.all %}
+            <div class="mb-3">
+                <h5>{{ area.subject.name }} - {{ area.name }}</h5>
+                <table class="table table-bordered">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Assessment Area</th>
+                            {% for grade_type in grade_types %}
+                            <th class="text-center">{{ grade_type.code }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subarea in area.assessment_subareas.all %}
+                        <tr>
+                            <td>{{ subarea.name }}</td>
+                            {% for grade_type in grade_types %}
+                            <td class="text-center">
+                                {% with grade=grades_dict|get_item:subarea.id|get_item:grade_type.id %}
+                                {% if grade %}
+                                <!-- <span>{{ grade.grade.label }}</span> -->
+                                <span class="text-lg text-bold">&#10003;</span>
+                                {% else %}
+                                <span> </span>
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="form-group">
+                    <label>Teacher Comment</label>
+                    <textarea class="form-control" rows="3" readonly>{{ area.teacher_comment }}</textarea>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+<script>
+    // Add any necessary JavaScript here
+</script>
+{% endblock %}
