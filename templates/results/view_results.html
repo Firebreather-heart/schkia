@@ -42,6 +42,69 @@
         </div>
     </div>
     {% endfor %}
+        <div class="mb-4">
+            <div class="floating-label">
+                <label for="teacher-comment">Class Teacher's Comment</label>
+                <div class="comment-box">
+                    <p id="teacher-comment">{{ student_result.teacher_general_comment|default:"No comments provided." }}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Class Teacher's' Name</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment"></p>
+                    </div>
+                </div>
+
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Class Teacher's' Signature</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment"></p>
+                    </div>
+                </div>
+
+                <div class="floating-label col-sm">
+                    <label for="teacher-comment">Date</label>
+                    <div class="comment-box">
+                        <p id="teacher-comment"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Head Teacher's General Comment -->
+        <div class="mb-4">
+            <div class="floating-label">
+                <label for="head-teacher-comment">Head Teacher's General Comment</label>
+                <div class="comment-box">
+                    <p id="head-teacher-comment">{{ student_result.head_teacher_comment|default:"No comments provided." }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="floating-label col-sm">
+                <label for="teacher-comment">Head Teacher's' Name</label>
+                <div class="comment-box">
+                    <p id="teacher-comment"></p>
+                </div>
+            </div>
+        
+            <div class="floating-label col-sm">
+                <label for="teacher-comment">Head Teacher's' Signature</label>
+                <div class="comment-box">
+                    <p id="teacher-comment"></p>
+                </div>
+            </div>
+        
+            <div class="floating-label col-sm">
+                <label for="teacher-comment">Date</label>
+                <div class="comment-box">
+                    <p id="teacher-comment"></p>
+                </div>
+            </div>
+        </div>
     {% else %}
     <div class="alert alert-info text-center">
         No results available for the selected parameters.
@@ -49,3 +112,4 @@
     {% endif %}
 </div>
 {% endblock %}
+

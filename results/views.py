@@ -50,18 +50,18 @@ def view_results(request, session_id, term_id, child_id):
 
     # Create a mapping of AssessmentSubArea to GradeType code
     grade_mapping = {
-        grade.assessment_sub_area.id: grade.grade.code for grade in grades}
+        grade.assessment_sub_area.id: grade.grade.code for grade in grades} #type:ignore
 
     # Fetch all Subjects related to the StudentResult's section and classroom
     subjects = Subject.objects.filter(
-        classroom=student_result.section.classroom
+        classroom=student_result.section.classroom #type:ignore
     ).distinct()
 
     # Prepare structured data for the template
     subject_data = []
     for subject in subjects:
         # Fetch all AssessmentAreas for the subject
-        assessment_areas = subject.assessment_areas.all().select_related('section')
+        assessment_areas = subject.assessment_areas.all().select_related('section') #type:ignore
         area_data = []
         for area in assessment_areas:
             # Fetch all AssessmentSubAreas for the AssessmentArea
