@@ -83,7 +83,7 @@ class AssessmentArea(models.Model):
     section = models.ForeignKey(
         AssessmentSection, on_delete=models.CASCADE, related_name='assessment_areas')
     subject = models.ForeignKey(
-        Subject, on_delete=models.CASCADE, related_name='subjects')
+        Subject, on_delete=models.CASCADE, related_name='assessment_areas')
     teacher_comment = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):

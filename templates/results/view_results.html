@@ -1,0 +1,51 @@
+<!-- templates/users/view_results.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Student Results{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Student Results for {{ child.fullname }}</h2>
+
+    {% if subject_data %}
+    {% for subject in subject_data %}
+    <div class="mb-5">
+        <h4 class="mb-3 text-primary">{{ subject.subject_name }}</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Assessment Area</th>
+                        {% for grade_type in grade_types %}
+                        <th class="text-center">{{ grade_type.label }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for area in subject.assessment_areas %}
+                    <tr>
+                        <td>{{ area.name }}</td>
+                        {% for grade_type in grade_types %}
+                        <td class="text-center">
+                            {% if area.grade_code == grade_type.code %}
+                            &#10003; <!-- Tick Mark -->
+                            {% else %}
+                            <!-- Empty -->
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info text-center">
+        No results available for the selected parameters.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

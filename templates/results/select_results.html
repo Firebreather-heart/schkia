@@ -1,0 +1,37 @@
+<!-- templates/users/select_results.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Select Parameters{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card p-4" style="width: 100%; max-width: 500px;">
+        <h3 class="card-title text-center mb-4">
+            <i class="fas fa-filter me-2"></i>Select Result
+        </h3>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="mb-3">
+                {{ form.session.label_tag }}
+                {{ form.session }}
+                {{ form.session.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.term.label_tag }}
+                {{ form.term }}
+                {{ form.term.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.child.label_tag }}
+                {{ form.child }}
+                {{ form.child.errors }}
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">View Results</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
