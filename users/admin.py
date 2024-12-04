@@ -38,7 +38,7 @@ class ClassRoomNameFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         # Filter by the database value of the choice
         if self.value():
-            return queryset.filter(subject__name=self.value())
+            return queryset.filter(classroom__name=self.value())
         return queryset
 
 class StudentAdmin(admin.ModelAdmin):
