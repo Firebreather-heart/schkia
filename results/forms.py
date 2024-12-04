@@ -1,5 +1,5 @@
 from django import forms
-from .models import AcademicSession, Term, Student
+from .models import AcademicSession, AssessmentSection, Term, Student
 
 
 class ResultSelectionForm(forms.Form):
@@ -13,6 +13,13 @@ class ResultSelectionForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Select Term'
     )
+
+    assessment = forms.ModelChoiceField(
+        queryset = AssessmentSection.objects.all(),
+        widget = forms.Select(attrs={'class': 'form-select'}),
+        label='Select Assessment',
+    )
+    
     child = forms.ModelChoiceField(
         queryset=Student.objects.none(),  # Will be set in the view
         widget=forms.Select(attrs={'class': 'form-select'}),

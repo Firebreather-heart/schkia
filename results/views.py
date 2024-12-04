@@ -14,8 +14,11 @@ def select_result_parameters(request):
             session = form.cleaned_data['session']
             term = form.cleaned_data['term']
             child = form.cleaned_data['child']
+            assessment = form.cleaned_data['assessment']
             # Redirect to the results page with selected parameters
-            return redirect('view_results', session_id=session.id, term_id=term.id, child_id=child.id)
+            return redirect('view_results', session_id=session.id, 
+                            term_id=term.id, child_id=child.id,
+                            assessment_id = assessment.id)
     else:
         form = ResultSelectionForm(parent=parent)
 
@@ -26,7 +29,7 @@ def select_result_parameters(request):
 
 
 @login_required
-def view_results(request, session_id, term_id, child_id):
+def view_results(request, session_id, term_id, child_id, assessment_id):
     parent = request.user.parent
     # Verify that the selected child belongs to the parent
     child = get_object_or_404(Student, id=child_id, parents=parent)
@@ -36,7 +39,8 @@ def view_results(request, session_id, term_id, child_id):
         StudentResult,
         student=child,
         term_id=term_id,
-        section__term__session_id=session_id
+        section__term__session_id=session_id, 
+        section = assessment_id
     )
 
     # Fetch all GradeTypes, ordered by code or any desired order
@@ -61,7 +65,7 @@ def view_results(request, session_id, term_id, child_id):
     subject_data = []
     for subject in subjects:
         # Fetch all AssessmentAreas for the subject
-        assessment_areas = subject.assessment_areas.all().select_related('section') #type:ignore
+        assessment_areas = subject.assessment_areas.filter(section=assessment_id).select_related('section') #type:ignore
         area_data = []
         for area in assessment_areas:
             # Fetch all AssessmentSubAreas for the AssessmentArea

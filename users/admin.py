@@ -45,7 +45,7 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ('fullname', 'date_of_birth', 'hostel', 'gender',
                     'phone_number', 'roll_id', 'number', 'classroom', 'created_at')
     search_fields = ('fullname', 'phone_number',
-                     'roll_id', 'number', 'classroom')
+                     'roll_id', 'number', )
     list_filter = ('gender', ClassRoomNameFilter, 'created_at')
     ordering = ('fullname',)
     fieldsets = (
