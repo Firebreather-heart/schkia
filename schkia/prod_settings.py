@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,7 +121,12 @@ LOGIN_REDIRECT_URL = 'dashboard'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -162,6 +168,8 @@ LOGGING = {
 JAZZMIN_SETTINGS = {
     "site_title": "Foster Prime Schools",
     "site_header": "Foster Prime Schools Admin",
+    'site_footer': 'firelord',
+    'site_logo': '/img/schoolkia.png',
     "site_brand": "schoolkia",
     "welcome_sign": "Welcome to Foster Prime Admin",
     "copyright": "raoatech",
@@ -173,7 +181,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Users", "url": "admin:users_customuser_changelist"},
     ],
     "usermenu_links": [
-        {"name": "Support", "url": "https://github.com/firebreather-heart/schkia",
+        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues",
             "new_window": True},
     ],
     "show_sidebar": True,
@@ -190,8 +198,9 @@ JAZZMIN_SETTINGS = {
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
     "related_modal_active": False,
-    "custom_css": 'css/custom_admin.css',
+    "custom_css": '/css/custom_admin.css',
     "custom_js": None,
     "show_ui_builder": False,
+    "use_google_fonts_cdn": True,
 
 }
