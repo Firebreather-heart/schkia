@@ -1,10 +1,21 @@
 <!-- templates/users/view_results.html -->
 
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Student Results{% endblock %}
 
 {% block content %}
+<style>
+    .text-bold{
+        font-weight: 900;
+    }
+
+    .blue{
+        background: #abb6f5;
+        margin: 0;
+    }
+</style>
 <div class="container mt-5">
 
     <h2 class="text-center py-5">PRE SCHOOL OBSERVATION REPORT</h2>
@@ -58,7 +69,7 @@
                 </div>
             </div>
 
-            <div class="row">           
+            <div class="row ">           
                 <div class="floating-label col-sm">
                     <label for="teacher-comment">Sex</label>
                     <div class="comment-box">
@@ -73,17 +84,30 @@
                     </div>
                 </div>
             </div>
+            <div class="">
+                <div class="row  blue justify-content-between">
+                    {% for grade_type in grade_types %}
+                    <p class="col-auto text-bold ">{{ grade_type.code }}-{{ grade_type.label }}</p>
+                    {%  endfor %}
+                </div>
+                <div>
+                    <div class="col-auto ">
+                        <img class="img-fluid p-3" src="{% static 'img/babies2.png' %}" alt="Babies Image">
+                    </div>
+                </div>
+            </div>
     </div>
+    
 
     {% if subject_data %}
+    <h6>ASSESSMENT AREAS</h6>
     {% for subject in subject_data %}
-    <div class="mb-5">
-        <h4 class="mb-3 text-primary">{{ subject.subject_name }}</h4>
+    <div class="">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover {% cycle 'table-success' 'table-primary' 'table-warning' %} ">
                 <thead class="table-light">
                     <tr>
-                        <th>Assessment Area</th>
+                        <th>{{ subject.subject_name }}</th>
                         {% for grade_type in grade_types %}
                         <th class="text-center">{{ grade_type.label }}</th>
                         {% endfor %}
@@ -91,25 +115,32 @@
                 </thead>
                 <tbody>
                     {% for area in subject.assessment_areas %}
-                    <tr>
-                        <td>{{ area.name }}</td>
-                        {% for grade_type in grade_types %}
-                        <td class="text-center">
-                            {% if area.grade_code == grade_type.code %}
-                            &#10003; <!-- Tick Mark -->
-                            {% else %}
-                            <!-- Empty -->
-                            {% endif %}
-                        </td>
-                        {% endfor %}
-                    </tr>
+                    <div >
+                        <tr>
+                            <td>{{ area.name }}</td>
+                            {% for grade_type in grade_types %}
+                            <td class="text-center">
+                                {% if area.grade_code == grade_type.code %}
+                                &#10003; <!-- Tick Mark -->
+                                {% else %}
+                                <!-- Empty -->
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </div>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+    <div class="row justify-content-center ">
+        <div class="col-auto">
+            <img class="img-fluid" src="{% static 'img/babies2.png' %}" alt="Babies Image">
+        </div>
+    </div>
     {% endfor %}
-        <div class="mb-4">
+        <div class="my-4">
             <div class="floating-label">
                 <label for="teacher-comment">Class Teacher's Comment</label>
                 <div class="comment-box">
@@ -178,6 +209,36 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+    .bg-green {
+        background-color: #d4edda;
+        /* Light green */
+    }
+
+    .bg-yellow {
+        background-color: #fff3cd;
+        /* Light yellow */
+    }
+
+    .bg-blue {
+        background-color: #d1ecf1;
+        /* Light blue */
+    }
+
+    .separator {
+        background-image: url('/path/to/your/image.png');
+        /* Path to your image */
+        background-repeat: repeat-x;
+        height: 20px;
+        /* Adjust height as needed */
+    }
+
+    .table th, .table td {
+        border-width: 1px; /* Adjust the thickness as needed */
+        border-color: black;
+    }
+</style>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Get the date of birth from the DOM

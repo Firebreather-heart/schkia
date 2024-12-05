@@ -1,4 +1,4 @@
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +18,7 @@
         }
 
         .bg-image {
-            background-image: url('https://source.unsplash.com/WEQbe2jBg40/600x1200');
+            background-image: url("{% static 'img/schoolkia.png' %}");
             background-size: cover;
             background-position: center;
         }
@@ -44,12 +44,17 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+        .logo {
+            max-width: 150px; /* Adjust the size as needed */
+            margin-bottom: 20px; /* Space between logo and heading */
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid bg-image">
+    <div class="container-fluid ">
         <div class="login">
             <div class="form-container">
+                <img src="{% static 'img/schoolkia.png' %}" alt="Schoolkia Logo" class="logo">
                 <h3 class="login-heading mb-4 text-center text-bold text-primary">Parent Login</h3>
 
                 <!-- Sign In Form -->
@@ -81,6 +86,7 @@
                         <button class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Sign in</button>
                     </div>
                 </form>
+                <span class="">Powered by <a href="https://raoatech.com">Raoatech</a></span>
             </div>
         </div>
     </div>
