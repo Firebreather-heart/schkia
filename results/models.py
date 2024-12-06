@@ -55,7 +55,7 @@ class Term(models.Model):
 
 
 class AssessmentSection(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=500)
     term = models.ForeignKey(Term, on_delete=models.CASCADE,
                              related_name='assessment_sections')
     classroom = models.ForeignKey(ClassRoom, on_delete=models.CASCADE,
@@ -79,7 +79,7 @@ class AssessmentSection(models.Model):
 
 
 class AssessmentArea(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=500)
     section = models.ForeignKey(
         AssessmentSection, on_delete=models.CASCADE, related_name='assessment_areas')
     subject = models.ForeignKey(
@@ -95,7 +95,7 @@ class AssessmentArea(models.Model):
 
 
 class AssessmentSubArea(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=500)
     area = models.ForeignKey(AssessmentArea,
                              on_delete=models.CASCADE, related_name='assessment_subareas')
     
@@ -161,8 +161,8 @@ class StudentResult(models.Model):
     student = models.ForeignKey(
         'Student', on_delete=models.CASCADE, related_name='results')
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
-    teacher_general_comment = models.CharField(max_length=200, blank=True, null=True)
-    head_teacher_comment = models.CharField(max_length=200, blank=True, null=True)
+    teacher_general_comment = models.CharField(max_length=500, blank=True, null=True)
+    head_teacher_comment = models.CharField(max_length=500, blank=True, null=True)
     section = models.ForeignKey(
         AssessmentSection, 
         on_delete=models.CASCADE,

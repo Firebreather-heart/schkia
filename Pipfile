@@ -8,6 +8,8 @@ django = "*"
 django-jazzmin = "*"
 pillow = "*"
 whitenoise = "*"
+cloudinary = "*"
+django-storages = "*"
 
 [dev-packages]
 

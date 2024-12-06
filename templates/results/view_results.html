@@ -15,10 +15,59 @@
         background: #abb6f5;
         margin: 0;
     }
+    .img-scaled{
+        width: 250px;
+        height: auto;
+        padding: 5px;
+        background-color: black;
+    }
+
+    .passport-photo{
+        margin-top: 0;
+        margin-bottom: 20px;
+        object-fit: cover;
+    }
+
+    @media (min-width: 768px) {
+    .passport-photo {
+        margin-top: 40px;  
+            }
+        }
+
+    @media (max-width: 767px) {
+        .passport-photo {
+            margin-top: 26px;  
+        }
+    }
+
+    @media (min-width: 768px) {
+    .passport-photo {
+        transform: translateY(50%); 
+    }
+}
+
 </style>
 <div class="container mt-5">
+    <div class="row align-items-center">
+        <div class="col-12 col-md-3"></div>
+        <div class="col-12 col-md-6">
+            <div class="text-center">
+                <img src="{% static 'img/foster.png' %}" alt="foster-logo" class="img-scaled img-fluid mx-auto">
+                <div class="text-center">
+                    <h1 class="text-bold">Creche Preschool Primary College</h1>
+                    <h6 class="fst-italic">No 28, Moshalashi street, Obalende, Lagos</h6>
+                    <h6>Tel:07061755233,08179449902</h6>
+                    <h6 class="fst-italic">fosterprimeschools@gmail.com</h6>
+                    <h2 class="my-5">PRE SCHOOL OBSERVATION REPORT</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3 text-center">
+            <img src="{% static 'img/foster.png' %}" alt="Passport Image" class="passport-photo">
+        </div>
+    </div>
 
-    <h2 class="text-center py-5">PRE SCHOOL OBSERVATION REPORT</h2>
+ 
 
     <div id="child-info">
             <div class="row">
