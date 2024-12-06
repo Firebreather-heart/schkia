@@ -258,9 +258,11 @@
                 
                         <div class="floating-label col-sm">
                             <label for="teacher-comment">Class Teacher's' Signature</label>
+                            {% if class_teacher.signature %}
                             <div class="comment-box">
                                 <img src="{{ class_teacher.signature.url }}" alt="" style="max-height: 20px; width:auto" >
                             </div>
+                            {% endif %}
                         </div>
                 
                         <div class="floating-label col-sm">
@@ -291,9 +293,11 @@
                 
                     <div class="floating-label col-sm">
                         <label for="teacher-comment">Head Teacher's' Signature</label>
+                        {% if head_teacher.signature %}
                         <div class="comment-box">
                             <img src="{{ head_teacher.signature.url }}"  alt="" style="max-height: 20px; width:auto">
                         </div>
+                        {% endif %}
                     </div>
                 
                     <div class="floating-label col-sm">
