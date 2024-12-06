@@ -1,3 +1,4 @@
+from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
@@ -42,3 +43,11 @@ def server_error(request):
 
 def bad_request(request, exception):
     return render(request, '400.html', status=400)
+
+
+def custom_csrf_failure_view(request, reason=""):
+    """
+    A custom view for handling CSRF errors.
+    """
+    context = {"reason": reason}
+    return TemplateResponse(request, "csrf_error.html", context, status=403)
