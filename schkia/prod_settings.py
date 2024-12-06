@@ -133,8 +133,8 @@ STATICFILES_DIRS = (
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
-MEDIA_URL = None
-MEDIA_ROOT = None
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 INTERNAL_IPS = [
     '127.0.0.1'
@@ -149,7 +149,7 @@ cloudinary.config(
 )
 CLOUDINARY_URL = config('CLOUDINARY_URL')
 
-DEFAULT_FILE_STORAGE = 'schkia.cloudinary_backend.CustomCloudinaryStorage'
+#DEFAULT_FILE_STORAGE = 'schkia.cloudinary_backend.CustomCloudinaryStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
