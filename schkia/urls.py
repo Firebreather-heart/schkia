@@ -24,10 +24,18 @@ urlpatterns = [
     path('parent/', include('users.urls')),
     path('results/', include('results.urls')),
     path('', include('dashboard.urls')),
-] + static(settings.MEDIA_URL,  document_root=settings.MEDIA_ROOT)
+]
 
 
 if settings.DEBUG:
     from django.conf.urls.static import static
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)
+    
+elif settings.PROD_LOCAL_MEDIA:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)

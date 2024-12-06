@@ -11,7 +11,6 @@ def parent_login_view(request):
         phone = request.POST['phone']
         password = request.POST['password']
         next_url = request.POST.get('next', '/')
-        print(next_url, 'next')
         try:
             uname = Parent.objects.get(phone_number=phone).user.username
         except:
@@ -22,7 +21,6 @@ def parent_login_view(request):
                 login(request, user)
                 return redirect(next_url)
     next_url = request.GET.get('next', '/')
-    print(next_url, 'next')
     return render(request, 'users/parent_login.html', {'next': next_url, 'error':''})
 
 
