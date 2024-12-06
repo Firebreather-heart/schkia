@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from .forms import ResultSelectionForm
-from .models import StudentResult, GradeType, Grade, Subject, Student
+from .models import StudentResult, GradeType, Grade, Subject, Student, Teacher
 
 
 @login_required
@@ -42,6 +42,12 @@ def view_results(request, session_id, term_id, child_id, assessment_id):
         section__term__session_id=session_id, 
         section = assessment_id
     )
+    classroom = student_result.section.classroom #type:ignore
+    class_teacher = classroom.teacher #type:ignore
+    try:
+        head_teacher = Teacher.objects.filter(name='Head Teacher').first()
+    except Teacher.DoesNotExist:
+        head_teacher = None
 
     # Fetch all GradeTypes, ordered by code or any desired order
     grade_types = GradeType.objects.all().order_by('code')
@@ -86,5 +92,8 @@ def view_results(request, session_id, term_id, child_id, assessment_id):
         'grade_types': grade_types,
         'subject_data': subject_data,
         'child': child,
+        'class_teacher': class_teacher,
+        'head_teacher': head_teacher,
+        'classroom': classroom,
     }
     return render(request, 'results/view_results.html', context)

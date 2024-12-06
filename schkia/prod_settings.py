@@ -1,3 +1,5 @@
+import cloudinary.uploader
+import cloudinary.api
 import os
 from pathlib import Path
 
@@ -34,6 +36,8 @@ ALLOWED_HOSTS = ['schoolkia.pythonanywhere.com', 'www.schoolkia.pythonanywhere.c
 # Application definition
 INSTALLED_APPS = [
     'jazzmin',
+    'cloudinary',
+    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -129,8 +133,23 @@ STATICFILES_DIRS = (
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = None
+MEDIA_ROOT = None
+
+INTERNAL_IPS = [
+    '127.0.0.1'
+]
+
+CLOUDINARY_URL = config('CLOUDINARY_URL')
+cloudinary.config(
+    cloud_name=config('CLOUDINARY_CLOUD_NAME'),
+    api_key=config('CLOUDINARY_API_KEY'),
+    api_secret=config('CLOUDINARY_API_SECRET'),
+    api_proxy="http://proxy.server:3128"
+)
+CLOUDINARY_URL = config('CLOUDINARY_URL')
+
+DEFAULT_FILE_STORAGE = 'schkia.cloudinary_backend.CustomCloudinaryStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -204,3 +223,4 @@ JAZZMIN_SETTINGS = {
     "use_google_fonts_cdn": True,
 
 }
+
