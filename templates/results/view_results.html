@@ -262,6 +262,10 @@
                             <div class="comment-box">
                                 <img src="{{ class_teacher.signature.url }}" alt="" style="max-height: 20px; width:auto" >
                             </div>
+                            {% else %}
+                            <div class="comment-box">
+
+                            </div>
                             {% endif %}
                         </div>
                 
@@ -296,6 +300,10 @@
                         {% if head_teacher.signature %}
                         <div class="comment-box">
                             <img src="{{ head_teacher.signature.url }}"  alt="" style="max-height: 20px; width:auto">
+                        </div>
+                        {% else %}
+                        <div class="comment-box">
+
                         </div>
                         {% endif %}
                     </div>
