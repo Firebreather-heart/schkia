@@ -259,14 +259,14 @@
                         <div class="floating-label col-sm">
                             <label for="teacher-comment">Class Teacher's' Signature</label>
                             <div class="comment-box">
-                                <p id="teacher-comment"></p>
+                                <img src="{{ class_teacher.signature.url }}" alt="" style="max-height: 20px; width:auto" >
                             </div>
                         </div>
                 
                         <div class="floating-label col-sm">
                             <label for="teacher-comment">Date</label>
                             <div class="comment-box">
-                                <p id="teacher-comment"></p>
+                                <p id="teacher-comment">{{ student_result.date }}</p>
                             </div>
                         </div>
                     </div>
@@ -292,14 +292,14 @@
                     <div class="floating-label col-sm">
                         <label for="teacher-comment">Head Teacher's' Signature</label>
                         <div class="comment-box">
-                            <p id="teacher-comment"></p>
+                            <img src="{{ head_teacher.signature.url }}"  alt="" style="max-height: 20px; width:auto">
                         </div>
                     </div>
                 
                     <div class="floating-label col-sm">
                         <label for="teacher-comment">Date</label>
                         <div class="comment-box">
-                            <p id="teacher-comment"></p>
+                            <p id="teacher-comment">{{ student_result.date }}</p>
                         </div>
                     </div>
                 </div>

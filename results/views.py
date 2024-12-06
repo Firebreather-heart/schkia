@@ -45,7 +45,7 @@ def view_results(request, session_id, term_id, child_id, assessment_id):
     classroom = student_result.section.classroom #type:ignore
     class_teacher = classroom.teacher #type:ignore
     try:
-        head_teacher = Teacher.objects.filter(name='Head Teacher').first()
+        head_teacher = Teacher.objects.filter(teacher_type='HT').first()
     except Teacher.DoesNotExist:
         head_teacher = None
 
@@ -86,7 +86,7 @@ def view_results(request, session_id, term_id, child_id, assessment_id):
             'subject_name': subject.name,
             'assessment_areas': area_data,
         })
-
+        
     context = {
         'student_result': student_result,
         'grade_types': grade_types,
