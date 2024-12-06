@@ -7,9 +7,8 @@ from django.utils.html import format_html
 from django.urls import path, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import (
-    ClassRoom, ResultGeneration, Subject, AcademicSession, Term, AssessmentArea, AssessmentSection, AssessmentSubArea, StudentResult, Grade, GradeType
+    ClassRoom, ResultGeneration, Subject, AcademicSession, Term, AssessmentArea, AssessmentSection, AssessmentSubArea, StudentResult, Grade, GradeType, Teacher, Student
 )
-from results.models import Student
 
 
 class AssessmentAreaInline(admin.TabularInline):
@@ -124,6 +123,12 @@ class SelectStudentTermForm(forms.Form):
 class ClassRoomAdmin(admin.ModelAdmin):
     list_display = ['name']
 
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ['name', 'classroom', 'get_teacher_type_display']
+    search_fields = ['name', 'classroom']
+    list_filter = ['classroom']
+    ordering = ['name']
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):

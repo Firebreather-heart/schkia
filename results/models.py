@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-from django.forms import ValidationError
+from django.core.validators import FileExtensionValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 
@@ -98,7 +98,6 @@ class AssessmentSubArea(models.Model):
     name = models.CharField(max_length=500)
     area = models.ForeignKey(AssessmentArea,
                              on_delete=models.CASCADE, related_name='assessment_subareas')
-    
 
     def __str__(self):
         return self.name
@@ -119,7 +118,7 @@ class GradeType(models.Model):
     @classmethod
     def get_choices(cls):
         return [(grade.code, grade.label) for grade in cls.objects.all()]
-    
+
 
 class Grade(models.Model):
     DEFAULT_GRADES = [
@@ -161,13 +160,15 @@ class StudentResult(models.Model):
     student = models.ForeignKey(
         'Student', on_delete=models.CASCADE, related_name='results')
     term = models.ForeignKey(Term, on_delete=models.CASCADE)
-    teacher_general_comment = models.CharField(max_length=500, blank=True, null=True)
-    head_teacher_comment = models.CharField(max_length=500, blank=True, null=True)
+    teacher_general_comment = models.CharField(
+        max_length=500, blank=True, null=True)
+    head_teacher_comment = models.CharField(
+        max_length=500, blank=True, null=True)
     section = models.ForeignKey(
-        AssessmentSection, 
+        AssessmentSection,
         on_delete=models.CASCADE,
-        related_name = 'student_results', 
-        null = True
+        related_name='student_results',
+        null=True
     )
     date = models.DateField(auto_now=True)
 
@@ -180,6 +181,30 @@ class StudentResult(models.Model):
         return f'Result for {self.student} - {self.term}'
 
 
+class FileSizeValidator(MaxValueValidator):
+    message = 'File size must be less than 500KB'
+    limit_value = 501 * 1024
+
+
+def validate_file_size(value):
+    filesize = value.size
+    if filesize > 500 * 1024:  # 500 KB
+        raise ValidationError(
+            "The maximum file size that can be uploaded is 500KB")
+    return value
+
+class Teacher(models.Model):
+    teacher_type = models.CharField(max_length=225,
+                                    choices=(
+                                        ('HT', 'Head Teacher'),
+                                        ('CT', 'Class Teacher'),
+                                    ))
+    classroom = models.OneToOneField(ClassRoom, on_delete=models.PROTECT, related_name='teacher',
+                                     null=True, blank=True)
+    name = models.CharField(max_length=225)
+    signature = models.ImageField(upload_to='teachers/signatures/',
+                                  null=True, blank=True,
+                                  validators=[FileExtensionValidator(allowed_extensions=['png', 'jpg', 'jpeg']), validate_file_size])
 
 
 class Student(models.Model):
@@ -191,7 +216,7 @@ class Student(models.Model):
         ('F', 'female'),
         ('NA', 'not available')
     ), default='NA')
-    phone_number = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=50, blank=True, null=True)
     roll_id = models.CharField(max_length=10, unique=True)
     number = models.CharField(max_length=10, unique=True)
     classroom = models.ForeignKey(ClassRoom,
@@ -200,6 +225,8 @@ class Student(models.Model):
                                   to_field='name'
                                   )
     created_at = models.DateTimeField(auto_now_add=True)
+    passport = models.ImageField(
+        upload_to='students/images/', null=True, blank=True)
 
     def __str__(self):
         return self.fullname
@@ -207,7 +234,7 @@ class Student(models.Model):
 
 class ResultGeneration(models.Model):
     id = models.AutoField(primary_key=True)
-    
+
     class Meta:
         managed = True  # No database table needed
         verbose_name_plural = "Result Generation"

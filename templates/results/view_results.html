@@ -16,10 +16,17 @@
         margin: 0;
     }
     .img-scaled{
-        width: 250px;
+        width: 20rem;
         height: auto;
         padding: 5px;
         background-color: black;
+    }
+
+    .prof-img-scaled{
+        width: 20rem;
+        height: auto;
+        padding: 5px;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
     }
 
     .passport-photo{
@@ -28,12 +35,20 @@
         object-fit: cover;
     }
 
+    .passport-photo-placeholder {
+        width: 250px; /* Adjust the size as needed */
+        height: 250px; /* Adjust the size as needed */
+        background-color: #e0e0e0; /* Light grey background */
+        border: 1px solid #ccc; /* Light grey border */
+        margin-bottom: 50px;
+    }
+
     @media (min-width: 768px) {
     .passport-photo {
         margin-top: 40px;  
             }
         }
-
+ 
     @media (max-width: 767px) {
         .passport-photo {
             margin-top: 26px;  
@@ -43,220 +58,257 @@
     @media (min-width: 768px) {
     .passport-photo {
         transform: translateY(50%); 
+        }
     }
-}
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #results-content, #results-content * {
+            visibility: visible;
+        }
+        #results-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        @page {
+        size: 13in 17in; /* Tabloid size in inches */
+        margin: 10mm; /* Optional: set margins */
+        orientation: portrait; /* Set to portrait orientation */
+        }
 
+        img, .content {
+                page-break-inside: avoid;
+            }
+        .prof-img-scaled{
+            max-width: 100%;   
+            height: auto;
+        }
+    }
 </style>
 <div class="container mt-5">
-    <div class="row align-items-center">
-        <div class="col-12 col-md-3"></div>
-        <div class="col-12 col-md-6">
-            <div class="text-center">
-                <img src="{% static 'img/foster.png' %}" alt="foster-logo" class="img-scaled img-fluid mx-auto">
-                <div class="text-center">
-                    <h1 class="text-bold">Creche Preschool Primary College</h1>
-                    <h6 class="fst-italic">No 28, Moshalashi street, Obalende, Lagos</h6>
-                    <h6>Tel:07061755233,08179449902</h6>
-                    <h6 class="fst-italic">fosterprimeschools@gmail.com</h6>
-                    <h2 class="my-5">PRE SCHOOL OBSERVATION REPORT</h2>
-                </div>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <button class="btn btn-secondary" onclick="printResults()">
+                <i class="fas fa-print me-2"></i>Print Results
+            </button>
         </div>
-        <div class="col-12 col-md-3 text-center">
-            <img src="{% static 'img/foster.png' %}" alt="Passport Image" class="passport-photo">
-        </div>
-    </div>
-
- 
-
-    <div id="child-info">
-            <div class="row">
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Child's' Name</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment">{{ child.fullname }}</p>
+        <div id="results-content">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-3"></div>
+                    <div class="col-12 col-md-6">
+                        <div class="text-center">
+                            <img src="{% static 'img/foster.png' %}" alt="foster-logo" class="img-scaled img-fluid mx-auto">
+                            <div class="text-center">
+                                <h1 class="text-bold">Creche Preschool Primary College</h1>
+                                <h6 class="fst-italic">No 28, Moshalashi street, Obalende, Lagos</h6>
+                                <h6>Tel:07061755233,08179449902</h6>
+                                <h6 class="fst-italic">fosterprimeschools@gmail.com</h6>
+                                <h2 class="my-5">PRE SCHOOL OBSERVATION REPORT</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3 text-center">
+                        {% if child.passport %}
+                        <img src="{{ child.passport.url }}" alt="Passport Image" class="passport-photo prof-img-scaled">
+                        {% else %}
+                        <div class="passport-photo-placeholder prof-img-scaled passport-photo"></div>
+                        {% endif %}
                     </div>
                 </div>
-            
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Class</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment">{{ child.classroom.classname }}</p>
+                
+                
+                
+                <div id="child-info">
+                    <div class="row">
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Child's' Name</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment">{{ child.fullname }}</p>
+                            </div>
+                        </div>
+                
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Class</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment">{{ child.classroom.classname }}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Date of Birth</label>
-                    <div class="comment-box">
-                        <p id="date-of-birth">{{ child.date_of_birth }}</p>
+                
+                    <div class="row">
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Date of Birth</label>
+                            <div class="comment-box">
+                                <p id="date-of-birth">{{ child.date_of_birth }}</p>
+                            </div>
+                        </div>
+                
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Term</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment">{{ student_result.term }}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Term</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment">{{ student_result.term }}</p>
+                
+                    <div class="row">
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Age</label>
+                            <div class="comment-box">
+                                <p id="age"></p>
+                            </div>
+                        </div>
+                
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Year</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment">{{ student_result.term.session }}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Age</label>
-                    <div class="comment-box">
-                        <p id="age"></p>
+                
+                    <div class="row ">
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Sex</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment">{{ child.get_gender_display }}</p>
+                            </div>
+                        </div>
+                
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Admission Number</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment">{{ child.roll_id }}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Year</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment">{{ student_result.term.session }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row ">           
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Sex</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment">{{ child.get_gender_display }}</p>
-                    </div>
-                </div>
-
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Admission Number</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment">{{ child.roll_id }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="">
-                <div class="row  blue justify-content-between">
-                    {% for grade_type in grade_types %}
-                    <p class="col-auto text-bold ">{{ grade_type.code }}-{{ grade_type.label }}</p>
-                    {%  endfor %}
-                </div>
-                <div>
-                    <div class="col-auto ">
-                        <img class="img-fluid p-3" src="{% static 'img/babies2.png' %}" alt="Babies Image">
-                    </div>
-                </div>
-            </div>
-    </div>
-    
-
-    {% if subject_data %}
-    <h6>ASSESSMENT AREAS</h6>
-    {% for subject in subject_data %}
-    <div class="">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover {% cycle 'table-success' 'table-primary' 'table-warning' %} ">
-                <thead class="table-light">
-                    <tr>
-                        <th>{{ subject.subject_name }}</th>
-                        {% for grade_type in grade_types %}
-                        <th class="text-center">{{ grade_type.label }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for area in subject.assessment_areas %}
-                    <div >
-                        <tr>
-                            <td>{{ area.name }}</td>
+                    <div class="">
+                        <div class="row  blue justify-content-between">
                             {% for grade_type in grade_types %}
-                            <td class="text-center">
-                                {% if area.grade_code == grade_type.code %}
-                                &#10003; <!-- Tick Mark -->
-                                {% else %}
-                                <!-- Empty -->
-                                {% endif %}
-                            </td>
-                            {% endfor %}
-                        </tr>
-                    </div>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row justify-content-center ">
-        <div class="col-auto">
-            <img class="img-fluid" src="{% static 'img/babies2.png' %}" alt="Babies Image">
-        </div>
-    </div>
-    {% endfor %}
-        <div class="my-4">
-            <div class="floating-label">
-                <label for="teacher-comment">Class Teacher's Comment</label>
-                <div class="comment-box">
-                    <p id="teacher-comment">{{ student_result.teacher_general_comment|default:"No comments provided." }}</p>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Class Teacher's' Name</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment"></p>
+                            <p class="col-auto text-bold ">{{ grade_type.code }}-{{ grade_type.label }}</p>
+                            {%  endfor %}
+                        </div>
+                        <div>
+                            <div class="col-auto ">
+                                <img class="img-fluid p-3" src="{% static 'img/babies2.png' %}" alt="Babies Image">
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Class Teacher's' Signature</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment"></p>
+                
+                
+                {% if subject_data %}
+                <h6>ASSESSMENT AREAS</h6>
+                {% for subject in subject_data %}
+                <div class="">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover {% cycle 'table-success' 'table-primary' 'table-warning' %} ">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{ subject.subject_name }}</th>
+                                    {% for grade_type in grade_types %}
+                                    <th class="text-center">{{ grade_type.label }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for area in subject.assessment_areas %}
+                                <div>
+                                    <tr>
+                                        <td>{{ area.name }}</td>
+                                        {% for grade_type in grade_types %}
+                                        <td class="text-center">
+                                            {% if area.grade_code == grade_type.code %}
+                                            &#10003; <!-- Tick Mark -->
+                                            {% else %}
+                                            <!-- Empty -->
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    </tr>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div class="floating-label col-sm">
-                    <label for="teacher-comment">Date</label>
-                    <div class="comment-box">
-                        <p id="teacher-comment"></p>
+                <div class="row justify-content-center ">
+                    <div class="col-auto">
+                        <img class="img-fluid" src="{% static 'img/babies2.png' %}" alt="Babies Image">
                     </div>
                 </div>
-            </div>
+                {% endfor %}
+                <div class="my-4">
+                    <div class="floating-label">
+                        <label for="teacher-comment">Class Teacher's Comment</label>
+                        <div class="comment-box">
+                            <p id="teacher-comment">{{ student_result.teacher_general_comment|default:"No comments provided." }}</p>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Class Teacher's' Name</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment">{{ class_teacher.name }}</p>
+                            </div>
+                        </div>
+                
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Class Teacher's' Signature</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment"></p>
+                            </div>
+                        </div>
+                
+                        <div class="floating-label col-sm">
+                            <label for="teacher-comment">Date</label>
+                            <div class="comment-box">
+                                <p id="teacher-comment"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Head Teacher's General Comment -->
+                <div class="mb-4">
+                    <div class="floating-label">
+                        <label for="head-teacher-comment">Head Teacher's General Comment</label>
+                        <div class="comment-box">
+                            <p id="head-teacher-comment">{{ student_result.head_teacher_comment|default:"No comments provided." }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="floating-label col-sm">
+                        <label for="teacher-comment">Head Teacher's' Name</label>
+                        <div class="comment-box">
+                            <p id="teacher-comment">{{ head_teacher.name }}</p>
+                        </div>
+                    </div>
+                
+                    <div class="floating-label col-sm">
+                        <label for="teacher-comment">Head Teacher's' Signature</label>
+                        <div class="comment-box">
+                            <p id="teacher-comment"></p>
+                        </div>
+                    </div>
+                
+                    <div class="floating-label col-sm">
+                        <label for="teacher-comment">Date</label>
+                        <div class="comment-box">
+                            <p id="teacher-comment"></p>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center">
+                    No results available for the selected parameters.
+                </div>
+                {% endif %}
         </div>
-        
-        <!-- Head Teacher's General Comment -->
-        <div class="mb-4">
-            <div class="floating-label">
-                <label for="head-teacher-comment">Head Teacher's General Comment</label>
-                <div class="comment-box">
-                    <p id="head-teacher-comment">{{ student_result.head_teacher_comment|default:"No comments provided." }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="floating-label col-sm">
-                <label for="teacher-comment">Head Teacher's' Name</label>
-                <div class="comment-box">
-                    <p id="teacher-comment"></p>
-                </div>
-            </div>
-        
-            <div class="floating-label col-sm">
-                <label for="teacher-comment">Head Teacher's' Signature</label>
-                <div class="comment-box">
-                    <p id="teacher-comment"></p>
-                </div>
-            </div>
-        
-            <div class="floating-label col-sm">
-                <label for="teacher-comment">Date</label>
-                <div class="comment-box">
-                    <p id="teacher-comment"></p>
-                </div>
-            </div>
-        </div>
-    {% else %}
-    <div class="alert alert-info text-center">
-        No results available for the selected parameters.
-    </div>
-    {% endif %}
 </div>
 
 <style>
@@ -327,6 +379,9 @@
             ageElement.textContent = `${years} years, ${months} months`;
         }
     });
+    function printResults() {
+                window.print();
+            }
 </script>
 {% endblock %}
 
