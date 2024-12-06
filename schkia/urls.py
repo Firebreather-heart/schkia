@@ -26,6 +26,9 @@ urlpatterns = [
     path('', include('dashboard.urls')),
 ]
 
+handler404 = 'dashboard.views.page_not_found'
+handler500 = 'dashboard.views.server_error'
+handler400 = 'dashboard.views.bad_request'
 
 if settings.DEBUG:
     from django.conf.urls.static import static
