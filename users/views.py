@@ -23,7 +23,7 @@ def parent_login_view(request):
                 return redirect(next_url)
     next_url = request.GET.get('next', '/')
     print(next_url, 'next')
-    return render(request, 'users/parent_login.html', {'next': next_url})
+    return render(request, 'users/parent_login.html', {'next': next_url, 'error':''})
 
 
 def parent_logout_view(request):
