@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from .models import Parent
 
 
 
-
+@csrf_exempt
 def parent_login_view(request):
     if request.method == 'POST':
         phone = request.POST['phone']

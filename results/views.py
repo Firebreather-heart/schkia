@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from .forms import ResultSelectionForm
-from .models import StudentResult, GradeType, Grade, Subject, Student, Teacher
+from .models import AssessmentSection, StudentResult, GradeType, Grade, Subject, Student, Teacher
 
 
 @login_required
+@csrf_exempt
 def select_result_parameters(request):
     parent = request.user.parent  # Assuming OneToOne relation
     if request.method == 'POST':
-        form = ResultSelectionForm(request.POST, parent=parent)
+        form = ResultSelectionForm(request.POST, parent=parent, )
         if form.is_valid():
             session = form.cleaned_data['session']
             term = form.cleaned_data['term']
@@ -35,13 +37,18 @@ def view_results(request, session_id, term_id, child_id, assessment_id):
     child = get_object_or_404(Student, id=child_id, parents=parent)
 
     # Fetch the StudentResult
-    student_result = get_object_or_404(
-        StudentResult,
-        student=child,
-        term_id=term_id,
-        section__term__session_id=session_id, 
-        section = assessment_id
-    )
+    try:
+        student_result = StudentResult.objects.get(
+            student=child,
+            term_id=term_id,
+            section__term__session_id=session_id, 
+            section = assessment_id
+        )
+    except StudentResult.DoesNotExist:
+        return render(request, 'results/no_result.html', 
+                      {
+                            'child': child,
+                      })
     classroom = student_result.section.classroom #type:ignore
     try:
         class_teacher = Teacher.objects.filter(classroom=classroom, teacher_type='CT').first()
